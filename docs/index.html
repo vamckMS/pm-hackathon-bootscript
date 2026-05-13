@@ -449,9 +449,9 @@ code --install-extension ms-python.python</code></pre>
   <pre><code>copilot</code></pre>
   <p class="expected">Launches an interactive session. On first run it prints a device code and a URL (<a href="https://github.com/login/device" target="_blank" rel="noopener">github.com/login/device</a>) — open it in a browser, <strong>sign in as the GitHub account that's linked to your Microsoft work account</strong> (usually <code>&lt;alias&gt;_microsoft</code>; see <a href="#link-validation">Step 11</a>), and authorize. Type <code>/exit</code> to leave the session.</p>
 
-  <div class="label">Validate — true one-shot prompt</div>
-  <pre><code>copilot -p "explain git status"</code></pre>
-  <p class="expected">Prints an explanation and exits. If this works, your Copilot entitlement is correctly linked and you're done with Copilot setup. For interactive mode with an auto-prompt, use <code>copilot -i "explain git status"</code> instead.</p>
+  <div class="label">Validate — interactive mode auto-runs your prompt</div>
+  <pre><code>copilot -i "explain git status"</code></pre>
+  <p class="expected">Launches Copilot, auto-runs the prompt, and prints the answer in the interactive UI — this is the most reliable validation. Type <code>/exit</code> when done. (The non-interactive flag <code>-p</code> sometimes prints a blank screen depending on terminal settings, so prefer <code>-i</code>.)</p>
 
   <div class="callout warn">
     <strong>Entitlement error?</strong> If <code>copilot</code> says you don't have access, you signed in as the wrong GitHub account. Run <code>copilot</code> again and switch accounts at the device-code page, or visit <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> in a browser to confirm which account has the Microsoft-linked entitlement.
@@ -510,8 +510,8 @@ gh copilot --help</code></pre>
   <p class="expected">Re-opens the browser auth flow. <strong>The one-time code goes to <a href="https://github.com/login/device" target="_blank" rel="noopener">github.com/login/device</a></strong> — if no browser pops up, open that URL manually. <strong>Make sure you sign in there as the Microsoft-linked account</strong>, not your personal one. After authorizing, run <code>gh auth status</code> again — the active account's "Token scopes" line should now include <code>'copilot'</code>.</p>
 
   <div class="label">5. Functional check — Copilot should respond now</div>
-  <pre><code>copilot -p "explain git status"</code></pre>
-  <p class="expected"><strong>Preferred:</strong> use the standalone CLI from Step 9 — one-shot, no gh-scope dance required. If you're testing the <code>gh copilot</code> extension instead, run <code>gh copilot explain "git status"</code>. Either should print a plain-English explanation. (First gh-copilot run prompts you to opt into usage analytics — answer once.)</p>
+  <pre><code>copilot -i "explain git status"</code></pre>
+  <p class="expected"><strong>Preferred:</strong> use the standalone CLI from Step 9 — <code>-i</code> launches an interactive session that auto-runs the prompt and reliably shows the answer. (<code>-p</code> non-interactive mode sometimes prints a blank screen.) Type <code>/exit</code> to leave. If you're testing the <code>gh copilot</code> extension instead, run <code>gh copilot explain "git status"</code>. Either should produce a plain-English explanation. (First gh-copilot run prompts you to opt into usage analytics — answer once.)</p>
 
   <div class="callout warn">
     <strong>Still getting <code>✗ Error: Unexpected problem with GitHub Copilot in the CLI</code> from <code>gh copilot</code>?</strong>
