@@ -13,7 +13,7 @@ The guide covers:
 - **VS Code / Cursor / CLI-only** editor paths
 - Git, Node LTS, Python 3, GitHub CLI
 - Windows Terminal + PowerShell 7 (Windows)
-- GitHub Copilot in your editor + `gh copilot` in your terminal
+- GitHub Copilot in your editor + the standalone `copilot` CLI in your terminal (plus optional `gh copilot` extension)
 - GitHub ↔ Microsoft account-link validation (unlocks unlimited Copilot tokens)
 - Agency
 
