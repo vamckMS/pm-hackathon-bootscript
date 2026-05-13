@@ -26,51 +26,48 @@ Agency Copilot install (so you don't waste a re-run cycle later).
 
 ## Quick start
 
-The script makes **no assumptions** about your shell, whether Git is installed, or
-whether you downloaded the zip from a browser. Pick whichever option matches how
-you got here.
+The bootstrap makes **no prerequisite assumptions**:
 
-### Option A — zero prereqs (recommended, works in **CMD or PowerShell**)
+| Assumption you might expect | Reality |
+|---|---|
+| You have Git installed | ❌ Not required. The web installer uses `curl` (built into Windows 10/11) to download a zip. Git gets installed *during* the bootstrap. |
+| You're in PowerShell | ❌ Not required. The launcher is a `.cmd` and works from CMD, PowerShell, or a double-click. |
+| Your ExecutionPolicy allows scripts | ❌ Not required. The launcher passes `-ExecutionPolicy Bypass`. |
+| You unblocked the zip you downloaded | ❌ Not required. The launcher runs `Unblock-File` across the tree first. |
+| You're running as Administrator | ❌ Not required. The script self-elevates with a UAC prompt. |
 
-You don't need Git installed and you don't need to know what shell you're in.
-Open **CMD** (Win+R → `cmd`) or **PowerShell** and run:
+### Option A — recommended: one-liner, zero prereqs
+
+Works from **CMD** (Win+R → `cmd`) **or PowerShell**. No Git, no clone, no
+download steps. Just paste and press Enter:
 
 ```cmd
 curl -L -o %TEMP%\pmboot.cmd https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/install.cmd && %TEMP%\pmboot.cmd
 ```
 
-`install.cmd` downloads the repo as a zip, clears Mark-of-the-Web, and launches
-the bootstrap. Git itself will be installed during the run.
+This downloads `install.cmd` with `curl`, which then fetches the repo zip via
+`Invoke-WebRequest`, expands it, clears Mark-of-the-Web, and launches the
+bootstrap. **No `git` binary is invoked.**
 
-### Option B — you already downloaded / cloned the repo
+### Option B — you already have the folder locally
 
-**Just double-click `bootstrap.cmd`**. It unblocks the files, bypasses execution
-policy, and self-elevates.
-
-Or from a shell:
+If you downloaded the zip manually from GitHub (Code → Download ZIP) and
+extracted it, or `git clone`d it: **double-click `bootstrap.cmd`** (or call it
+from any shell). It handles MOTW, ExecutionPolicy, and UAC for you.
 
 ```cmd
-:: CMD
+:: From CMD
 bootstrap.cmd
 ```
 
 ```powershell
-# PowerShell (5.1 or 7+)
+# From PowerShell
 .\bootstrap.cmd
 ```
 
-> ⚠️ Running `.\bootstrap.ps1` directly only works if (a) you're already in
-> PowerShell, (b) `ExecutionPolicy` allows it, and (c) the files don't have
-> Mark-of-the-Web. **Use `bootstrap.cmd` and you don't have to think about any
-> of that.**
-
-### Option C — you cloned via Git
-
-```powershell
-git clone https://github.com/vamckMS/pm-hackathon-bootscript
-cd pm-hackathon-bootscript
-.\bootstrap.cmd
-```
+> ⚠️ Running `bootstrap.ps1` directly is **not recommended** — it only works if
+> you're already in PowerShell, ExecutionPolicy allows scripts, and the files
+> aren't Mark-of-the-Web blocked. `bootstrap.cmd` removes all three concerns.
 
 ## Flags
 
