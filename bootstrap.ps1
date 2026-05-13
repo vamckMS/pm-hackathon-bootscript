@@ -107,10 +107,12 @@ $ErrorActionPreference = 'Stop'
 Set-ExecutionPolicy Bypass -Scope Process -Force -ErrorAction SilentlyContinue | Out-Null
 
 # ---------- Module loader (dual mode) ----------
-# Loads scripts as TEXT and dot-sources via [ScriptBlock]::Create.
-# Local mode reads from disk; remote mode fetches from raw.githubusercontent.com.
-# Either way, no script FILE is executed — so GPO ExecutionPolicy cannot block it.
-function Import-Local {
+# Loads scripts as TEXT and dot-sources them so names land at SCRIPT scope.
+# Wrapping the dot-source in a regular `function` would scope names to that
+# function — which is why we use a scriptblock invoked via `. $LoadOne <path>`
+# below. Either way, no script FILE is executed (we evaluate strings via
+# [ScriptBlock]::Create), so GPO-enforced ExecutionPolicy cannot block it.
+$script:LoadOne = {
     param([Parameter(Mandatory)][string]$RelPath)
     if ($script:IsRemote) {
         $url = ($script:BaseUrl + '/' + $RelPath).Replace('\','/')
@@ -131,15 +133,15 @@ if (-not $script:IsRemote) {
     } catch { }
 }
 
-Import-Local 'modules/Common.psm1'
-Import-Local 'modules/Install-Prereqs.ps1'
-Import-Local 'modules/Install-CoreTools.ps1'
-Import-Local 'modules/Install-Terminal.ps1'
-Import-Local 'modules/Install-VSCode.ps1'
-Import-Local 'modules/Install-GhCli.ps1'
-Import-Local 'modules/Test-GithubLink.ps1'
-Import-Local 'modules/Install-AgencyCopilot.ps1'
-Import-Local 'modules/Show-Summary.ps1'
+. $script:LoadOne 'modules/Common.psm1'
+. $script:LoadOne 'modules/Install-Prereqs.ps1'
+. $script:LoadOne 'modules/Install-CoreTools.ps1'
+. $script:LoadOne 'modules/Install-Terminal.ps1'
+. $script:LoadOne 'modules/Install-VSCode.ps1'
+. $script:LoadOne 'modules/Install-GhCli.ps1'
+. $script:LoadOne 'modules/Test-GithubLink.ps1'
+. $script:LoadOne 'modules/Install-AgencyCopilot.ps1'
+. $script:LoadOne 'modules/Show-Summary.ps1'
 
 # Resolve the extensions config path (Install-VSCode wants a file path).
 if ($script:IsRemote) {
