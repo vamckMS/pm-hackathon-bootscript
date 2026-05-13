@@ -142,24 +142,38 @@
 <!-- STEP: Open a terminal -->
 <div class="step">
   <h3><span class="num">★</span> Before you start: open a terminal</h3>
-  <p class="why">All the commands below are run in a terminal / command line. If you don't have one open yet:</p>
+  <p class="why">All the commands below are run in a terminal / command line. Open one this way:</p>
+
+  <!-- Windows -->
   <div class="label" data-os="windows">Windows</div>
   <ul data-os="windows">
-    <li><strong>In VS Code:</strong> press <code>Ctrl</code> + <code>`</code> (backtick, left of the <code>1</code> key) to open the integrated terminal. Or menu: <em>Terminal → New Terminal</em>.</li>
+    <li data-editor="vscode"><strong>In VS Code:</strong> press <code>Ctrl</code> + <code>`</code> (backtick, top-left of your keyboard) to open the integrated terminal. Or menu: <em>Terminal → New Terminal</em>.</li>
+    <li data-editor="cursor"><strong>In Cursor:</strong> press <code>Ctrl</code> + <code>`</code> (backtick) — Cursor is a VS Code fork, so the same shortcut opens the integrated terminal.</li>
+    <li data-editor="vscode cursor"><em>Don't have your editor installed yet? Use one of the standalone options below — you'll install the editor later in this guide.</em></li>
     <li><strong>Standalone:</strong> Start menu → "Windows Terminal" (or "PowerShell" / "Command Prompt" on older Windows).</li>
-    <li>If you don't have Windows Terminal yet, that's fine — install it in Step 5 below. <code>cmd</code> or PowerShell 5.1 (built-in) work for everything in this guide.</li>
+    <li>If you don't have Windows Terminal yet, that's fine — install it in Step 5 below. <code>cmd</code> or PowerShell 5.1 (built-in) work for every command in this guide.</li>
   </ul>
+
+  <!-- macOS -->
   <div class="label" data-os="macos">macOS</div>
   <ul data-os="macos">
-    <li><strong>In VS Code:</strong> <code>Ctrl</code> + <code>`</code> (backtick) opens the integrated terminal.</li>
-    <li><strong>Standalone:</strong> Spotlight (<code>Cmd</code> + <code>Space</code>) → type "Terminal" → Enter. Or open <em>Applications → Utilities → Terminal</em>.</li>
+    <li data-editor="vscode"><strong>In VS Code:</strong> press <code>Ctrl</code> + <code>`</code> (backtick) to open the integrated terminal. Or menu: <em>Terminal → New Terminal</em>.</li>
+    <li data-editor="cursor"><strong>In Cursor:</strong> press <code>Ctrl</code> + <code>`</code> (backtick) — Cursor is a VS Code fork, so the same shortcut opens the integrated terminal.</li>
+    <li data-editor="vscode cursor"><em>Don't have your editor installed yet? Use Spotlight below — you'll install the editor later in this guide.</em></li>
+    <li><strong>Standalone:</strong> Spotlight (<code>Cmd</code> + <code>Space</code>) → type "Terminal" → <code>Enter</code>. Or open <em>Applications → Utilities → Terminal</em>.</li>
   </ul>
+
+  <!-- Linux -->
   <div class="label" data-os="linux">Linux</div>
   <ul data-os="linux">
-    <li><strong>In VS Code:</strong> <code>Ctrl</code> + <code>`</code> (backtick) opens the integrated terminal.</li>
+    <li data-editor="vscode"><strong>In VS Code:</strong> press <code>Ctrl</code> + <code>`</code> (backtick) to open the integrated terminal. Or menu: <em>Terminal → New Terminal</em>.</li>
+    <li data-editor="cursor"><strong>In Cursor:</strong> press <code>Ctrl</code> + <code>`</code> (backtick) — Cursor is a VS Code fork, so the same shortcut opens the integrated terminal.</li>
+    <li data-editor="vscode cursor"><em>Don't have your editor installed yet? Use the standalone option below — you'll install the editor later in this guide.</em></li>
     <li><strong>Standalone:</strong> <code>Ctrl</code> + <code>Alt</code> + <code>T</code> on most distros, or search for "Terminal" in your app launcher.</li>
   </ul>
-  <p class="expected">Tip: in VS Code, the integrated terminal inherits your project folder as the working directory — convenient once you start cloning repos.</p>
+
+  <p class="expected" data-editor="vscode cursor">Tip: the integrated terminal inherits your current folder as the working directory — handy once you start cloning repos.</p>
+  <p class="expected" data-editor="cli">Since you picked the CLI-only path, every command in this guide runs in your standalone terminal — no editor needed.</p>
 </div>
 
 <!-- STEP 0: package manager -->
@@ -592,8 +606,9 @@ gh extension install github/gh-copilot</code></pre>
     document.querySelectorAll('[data-os], [data-editor]').forEach(el => {
       const targetOs = el.getAttribute('data-os');
       const targetEd = el.getAttribute('data-editor');
-      const osOk = !targetOs || targetOs === os;
-      const edOk = !targetEd || targetEd === editor;
+      // attributes accept either a single value or a space-separated list
+      const osOk = !targetOs || targetOs.split(/\s+/).includes(os);
+      const edOk = !targetEd || targetEd.split(/\s+/).includes(editor);
       el.classList.toggle('hidden', !(osOk && edOk));
     });
   }
