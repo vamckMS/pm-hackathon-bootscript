@@ -26,18 +26,50 @@ Agency Copilot install (so you don't waste a re-run cycle later).
 
 ## Quick start
 
-From a normal **Windows PowerShell** (5.1) prompt — the script self-elevates:
+The script makes **no assumptions** about your shell, whether Git is installed, or
+whether you downloaded the zip from a browser. Pick whichever option matches how
+you got here.
 
-```powershell
-git clone <this-repo-url> pm-hackathon-bootscript
-cd pm-hackathon-bootscript
-.\bootstrap.ps1
+### Option A — zero prereqs (recommended, works in **CMD or PowerShell**)
+
+You don't need Git installed and you don't need to know what shell you're in.
+Open **CMD** (Win+R → `cmd`) or **PowerShell** and run:
+
+```cmd
+curl -L -o %TEMP%\pmboot.cmd https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/install.cmd && %TEMP%\pmboot.cmd
 ```
 
-Or one-liner (once this is published to a release/raw URL):
+`install.cmd` downloads the repo as a zip, clears Mark-of-the-Web, and launches
+the bootstrap. Git itself will be installed during the run.
+
+### Option B — you already downloaded / cloned the repo
+
+**Just double-click `bootstrap.cmd`**. It unblocks the files, bypasses execution
+policy, and self-elevates.
+
+Or from a shell:
+
+```cmd
+:: CMD
+bootstrap.cmd
+```
 
 ```powershell
-iwr -UseBasicParsing <raw-url>/bootstrap.ps1 -OutFile $env:TEMP\bootstrap.ps1; & $env:TEMP\bootstrap.ps1
+# PowerShell (5.1 or 7+)
+.\bootstrap.cmd
+```
+
+> ⚠️ Running `.\bootstrap.ps1` directly only works if (a) you're already in
+> PowerShell, (b) `ExecutionPolicy` allows it, and (c) the files don't have
+> Mark-of-the-Web. **Use `bootstrap.cmd` and you don't have to think about any
+> of that.**
+
+### Option C — you cloned via Git
+
+```powershell
+git clone https://github.com/vamckMS/pm-hackathon-bootscript
+cd pm-hackathon-bootscript
+.\bootstrap.cmd
 ```
 
 ## Flags
@@ -73,7 +105,9 @@ Edit `config\extensions.json` and re-run.
 
 ```
 pm-hackathon-bootscript/
-├── bootstrap.ps1                  # Entry point
+├── install.cmd                    # Zero-prereq web installer (CMD/PS agnostic)
+├── bootstrap.cmd                  # Local launcher: unblocks files + runs .ps1
+├── bootstrap.ps1                  # Entry point (self-elevates, self-unblocks)
 ├── README.md
 ├── config/
 │   └── extensions.json            # VS Code extensions list
@@ -96,6 +130,15 @@ pm-hackathon-bootscript/
 
 ## Troubleshooting
 
+- **"`.ps1` cannot be loaded because running scripts is disabled on this system"** —
+  you ran `bootstrap.ps1` directly. Use `bootstrap.cmd` instead; it sets
+  `-ExecutionPolicy Bypass` for the single process.
+- **"File is not digitally signed" / "blocked because it came from an internet location"** —
+  Mark-of-the-Web from the zip download. `bootstrap.cmd` clears this automatically
+  via `Unblock-File`. If running `.ps1` directly, run once:
+  `Get-ChildItem -Recurse | Unblock-File`.
+- **"`bootstrap.ps1` is not recognized as an internal or external command"** —
+  you're in CMD, not PowerShell. Use `bootstrap.cmd` (it works from either shell).
 - **`'code' not on PATH`** — restart your shell after VS Code installs, then re-run.
 - **`gh` install succeeded but `gh` not found** — same; reopen PowerShell.
 - **Agency install fails** — ensure you're on the corp network and authenticated to Microsoft EMU via `gh auth status`.

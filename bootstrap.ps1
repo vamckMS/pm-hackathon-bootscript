@@ -73,6 +73,13 @@ Set-ExecutionPolicy Bypass -Scope Process -Force | Out-Null
 
 # ---------- Load modules ----------
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+# Clear Mark-of-the-Web on all files in our tree so dot-sourced modules run
+# even if the user downloaded this repo as a zip from a browser.
+try {
+    Get-ChildItem -Path $here -Recurse -File -ErrorAction SilentlyContinue |
+        Unblock-File -ErrorAction SilentlyContinue
+} catch { }
 $mod  = Join-Path $here 'modules'
 $cfg  = Join-Path $here 'config\extensions.json'
 
