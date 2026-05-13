@@ -1,0 +1,18 @@
+{
+  "_comment": "VS Code extensions installed by the PM Hackathon bootstrap. Edit freely; the script reads this at runtime.",
+  "_howToAdd": "Add new entries to either 'coreExtensions' (always installed) or 'mcpExtensions' (MCP servers/managers). Each entry: { id, name, optional: enabled (default true), note }.",
+
+  "coreExtensions": [
+    { "id": "GitHub.copilot",                        "name": "GitHub Copilot" },
+    { "id": "GitHub.copilot-chat",                   "name": "GitHub Copilot Chat" },
+    { "id": "GitHub.copilot-cli",                    "name": "GitHub Copilot CLI" },
+    { "id": "ms-vscode.powershell",                  "name": "PowerShell" },
+    { "id": "ms-python.python",                      "name": "Python" }
+  ],
+
+  "mcpExtensions": [
+    { "id": "ms-azuretools.vscode-azure-mcp-server", "name": "Azure MCP Server" }
+  ],
+
+  "_mcpPlaceholderNote": "MCP extension list will be finalized by hackathon organizers. Add the agreed-upon IDs to 'mcpExtensions' above. Anything in this array is installed exactly like coreExtensions."
+}

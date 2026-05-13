@@ -1,0 +1,9 @@
+# Local bootstrap state/logs (per-machine)
+*.log
+*.bak.*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
