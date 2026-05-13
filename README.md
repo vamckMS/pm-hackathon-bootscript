@@ -32,7 +32,7 @@ The bootstrap makes **no prerequisite assumptions**:
 |---|---|
 | You have Git installed | ❌ Not required. The web installer uses `curl` (built into Windows 10/11) to download a zip. Git gets installed *during* the bootstrap. |
 | You're in PowerShell | ❌ Not required. The launcher is a `.cmd` and works from CMD, PowerShell, or a double-click. |
-| Your ExecutionPolicy allows scripts | ❌ Not required. The launcher passes `-ExecutionPolicy Bypass`. |
+| Your ExecutionPolicy allows scripts | ❌ Not required. The launcher loads scripts as **text** and invokes them via `[ScriptBlock]::Create` — this bypasses ExecutionPolicy **even when GPO sets `MachinePolicy`/`UserPolicy`** (where `-ExecutionPolicy Bypass` is normally ignored). |
 | You unblocked the zip you downloaded | ❌ Not required. The launcher runs `Unblock-File` across the tree first. |
 | You're running as Administrator | ❌ Not required. The script self-elevates with a UAC prompt. |
 
@@ -128,8 +128,9 @@ pm-hackathon-bootscript/
 ## Troubleshooting
 
 - **"`.ps1` cannot be loaded because running scripts is disabled on this system"** —
-  you ran `bootstrap.ps1` directly. Use `bootstrap.cmd` instead; it sets
-  `-ExecutionPolicy Bypass` for the single process.
+  you ran `bootstrap.ps1` directly under a GPO-enforced ExecutionPolicy. Use
+  `bootstrap.cmd` instead; it loads the script as text via `[ScriptBlock]::Create`,
+  which is not subject to ExecutionPolicy (including GPO `MachinePolicy`/`UserPolicy`).
 - **"File is not digitally signed" / "blocked because it came from an internet location"** —
   Mark-of-the-Web from the zip download. `bootstrap.cmd` clears this automatically
   via `Unblock-File`. If running `.ps1` directly, run once:

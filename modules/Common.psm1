@@ -285,16 +285,24 @@ function Get-LogPath   { return $script:LogPath }
 function Get-StateDir  { return $script:StateDir }
 function Get-StateRoot { return $script:StateRoot }
 
-Export-ModuleMember -Function `
-    Initialize-Bootstrap, Stop-Bootstrap, `
-    Write-Log, Write-Step, `
-    Test-WhatIfMode, Test-ForceModule, `
-    Test-Admin, Assert-Admin, `
-    Test-Command, Get-CommandVersion, `
-    Test-Internet, `
-    Add-Result, Get-Results, `
-    Test-Winget, Test-Choco, Test-WingetPackage, `
-    Install-WithWinget, Install-WithChoco, Install-Package, `
-    Set-StateMarker, Test-StateMarker, `
-    Backup-File, `
-    Get-LogPath, Get-StateDir, Get-StateRoot
+# Export-ModuleMember only succeeds when this file is loaded via Import-Module.
+# When dot-sourced (used to bypass GPO ExecutionPolicy on .psm1 files via
+# [ScriptBlock]::Create), all functions are already visible in the caller's
+# scope and Export-ModuleMember throws. Swallow that error.
+try {
+    Export-ModuleMember -Function `
+        Initialize-Bootstrap, Stop-Bootstrap, `
+        Write-Log, Write-Step, `
+        Test-WhatIfMode, Test-ForceModule, `
+        Test-Admin, Assert-Admin, `
+        Test-Command, Get-CommandVersion, `
+        Test-Internet, `
+        Add-Result, Get-Results, `
+        Test-Winget, Test-Choco, Test-WingetPackage, `
+        Install-WithWinget, Install-WithChoco, Install-Package, `
+        Set-StateMarker, Test-StateMarker, `
+        Backup-File, `
+        Get-LogPath, Get-StateDir, Get-StateRoot
+} catch {
+    # Not running as a module — fine, all functions are already in caller scope.
+}

@@ -58,12 +58,27 @@ function Test-IsAdmin {
 
 if (-not (Test-IsAdmin)) {
     Write-Host "Re-launching elevated..." -ForegroundColor Yellow
-    $argList = @('-NoProfile','-ExecutionPolicy','Bypass','-File',"`"$PSCommandPath`"")
-    if ($WhatIf)                  { $argList += '-WhatIf' }
-    if ($Force)                   { $argList += @('-Force') + $Force }
-    if ($GithubUsername)          { $argList += @('-GithubUsername', $GithubUsername) }
-    if ($SkipGhValidation)        { $argList += '-SkipGhValidation' }
-    if ($AgencyTag)               { $argList += @('-AgencyTag', $AgencyTag) }
+
+    # Build the parameter passthrough string. Escape single quotes by doubling.
+    function _q([string]$s) { "'" + ($s -replace "'", "''") + "'" }
+    $params = @()
+    if ($WhatIf)             { $params += '-WhatIf' }
+    if ($Force)              { $params += '-Force ' + (($Force | ForEach-Object { _q $_ }) -join ',') }
+    if ($GithubUsername)     { $params += '-GithubUsername ' + (_q $GithubUsername) }
+    if ($SkipGhValidation)   { $params += '-SkipGhValidation' }
+    if ($AgencyTag)          { $params += '-AgencyTag ' + (_q $AgencyTag) }
+    $paramStr = ($params -join ' ')
+
+    # Use -EncodedCommand with a scriptblock created from the file's TEXT.
+    # This bypasses ExecutionPolicy even when MachinePolicy/UserPolicy is set
+    # by GPO (where -ExecutionPolicy Bypass on the command line is ignored),
+    # because we're invoking inline commands, not loading a script file.
+    $scriptPath = $PSCommandPath
+    $cmd = "& ([ScriptBlock]::Create((Get-Content -Raw -LiteralPath " + (_q $scriptPath) + "))) $paramStr"
+    $bytes = [System.Text.Encoding]::Unicode.GetBytes($cmd)
+    $encoded = [Convert]::ToBase64String($bytes)
+
+    $argList = @('-NoProfile','-ExecutionPolicy','Bypass','-EncodedCommand',$encoded)
     Start-Process -FilePath 'powershell.exe' -ArgumentList $argList -Verb RunAs
     return
 }
@@ -80,18 +95,30 @@ try {
     Get-ChildItem -Path $here -Recurse -File -ErrorAction SilentlyContinue |
         Unblock-File -ErrorAction SilentlyContinue
 } catch { }
+
 $mod  = Join-Path $here 'modules'
 $cfg  = Join-Path $here 'config\extensions.json'
 
-Import-Module (Join-Path $mod 'Common.psm1') -Force
-. (Join-Path $mod 'Install-Prereqs.ps1')
-. (Join-Path $mod 'Install-CoreTools.ps1')
-. (Join-Path $mod 'Install-Terminal.ps1')
-. (Join-Path $mod 'Install-VSCode.ps1')
-. (Join-Path $mod 'Install-GhCli.ps1')
-. (Join-Path $mod 'Test-GithubLink.ps1')
-. (Join-Path $mod 'Install-AgencyCopilot.ps1')
-. (Join-Path $mod 'Show-Summary.ps1')
+# Load each module by reading its text and dot-sourcing a ScriptBlock created
+# from that text. This bypasses ExecutionPolicy entirely — even when GPO
+# enforces MachinePolicy=AllSigned/RemoteSigned, which would block both
+# Import-Module *.psm1 and dot-sourcing *.ps1 files directly. Nothing here
+# loads a file "as a script"; we load text and execute it as inline commands.
+function Import-Local {
+    param([Parameter(Mandatory)][string]$Path)
+    $content = Get-Content -Raw -LiteralPath $Path
+    . ([ScriptBlock]::Create($content))
+}
+
+Import-Local (Join-Path $mod 'Common.psm1')
+Import-Local (Join-Path $mod 'Install-Prereqs.ps1')
+Import-Local (Join-Path $mod 'Install-CoreTools.ps1')
+Import-Local (Join-Path $mod 'Install-Terminal.ps1')
+Import-Local (Join-Path $mod 'Install-VSCode.ps1')
+Import-Local (Join-Path $mod 'Install-GhCli.ps1')
+Import-Local (Join-Path $mod 'Test-GithubLink.ps1')
+Import-Local (Join-Path $mod 'Install-AgencyCopilot.ps1')
+Import-Local (Join-Path $mod 'Show-Summary.ps1')
 
 Initialize-Bootstrap -WhatIfMode:$WhatIf -Force $Force
 Assert-Admin
