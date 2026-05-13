@@ -135,11 +135,38 @@
 
 <p class="lead" id="track-label"></p>
 
+<div class="callout">
+  <strong>How to use this guide:</strong> every step has a <strong>Check</strong> command first. Run it — if it prints a version, you already have that tool and can skip the install. Only run the <strong>Install</strong> command if the check fails (e.g., "command not found"). After installing, <strong>close and reopen your terminal</strong> so PATH refreshes, then re-run the check.
+</div>
+
+<!-- STEP: Open a terminal -->
+<div class="step">
+  <h3><span class="num">★</span> Before you start: open a terminal</h3>
+  <p class="why">All the commands below are run in a terminal / command line. If you don't have one open yet:</p>
+  <div class="label" data-os="windows">Windows</div>
+  <ul data-os="windows">
+    <li><strong>In VS Code:</strong> press <code>Ctrl</code> + <code>`</code> (backtick, left of the <code>1</code> key) to open the integrated terminal. Or menu: <em>Terminal → New Terminal</em>.</li>
+    <li><strong>Standalone:</strong> Start menu → "Windows Terminal" (or "PowerShell" / "Command Prompt" on older Windows).</li>
+    <li>If you don't have Windows Terminal yet, that's fine — install it in Step 5 below. <code>cmd</code> or PowerShell 5.1 (built-in) work for everything in this guide.</li>
+  </ul>
+  <div class="label" data-os="macos">macOS</div>
+  <ul data-os="macos">
+    <li><strong>In VS Code:</strong> <code>Ctrl</code> + <code>`</code> (backtick) opens the integrated terminal.</li>
+    <li><strong>Standalone:</strong> Spotlight (<code>Cmd</code> + <code>Space</code>) → type "Terminal" → Enter. Or open <em>Applications → Utilities → Terminal</em>.</li>
+  </ul>
+  <div class="label" data-os="linux">Linux</div>
+  <ul data-os="linux">
+    <li><strong>In VS Code:</strong> <code>Ctrl</code> + <code>`</code> (backtick) opens the integrated terminal.</li>
+    <li><strong>Standalone:</strong> <code>Ctrl</code> + <code>Alt</code> + <code>T</code> on most distros, or search for "Terminal" in your app launcher.</li>
+  </ul>
+  <p class="expected">Tip: in VS Code, the integrated terminal inherits your project folder as the working directory — convenient once you start cloning repos.</p>
+</div>
+
 <!-- STEP 0: package manager -->
 <div class="step" data-os="windows">
   <h3><span class="num">0.</span> Verify you have <code>winget</code></h3>
   <p class="why">winget ships with Windows 10 1809+ / Windows 11. On most modern corp laptops it's already there.</p>
-  <div class="label">Verify</div>
+  <div class="label">Check</div>
   <pre><code>winget --version</code></pre>
   <p class="expected">Expected: something like <code>v1.7.x</code>. If you get "command not found," install <a href="https://aka.ms/getwinget" target="_blank" rel="noopener">App Installer from the Microsoft Store</a>, then close and reopen your terminal.</p>
 </div>
@@ -147,10 +174,10 @@
 <div class="step" data-os="macos">
   <h3><span class="num">0.</span> Install Homebrew</h3>
   <p class="why">Homebrew is the de-facto macOS package manager.</p>
-  <div class="label">Install (run in Terminal)</div>
-  <pre><code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
-  <div class="label">Verify</div>
+  <div class="label">Check (skip install if a version prints)</div>
   <pre><code>brew --version</code></pre>
+  <div class="label">Install if missing (run in Terminal)</div>
+  <pre><code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
   <p class="expected">Expected: <code>Homebrew 4.x.x</code></p>
 </div>
 
@@ -165,7 +192,9 @@
 <div class="step" data-os="windows">
   <h3><span class="num">1.</span> Git</h3>
   <p class="why">Version control. You'll use it for every hackathon project.</p>
-  <div class="label">Install</div>
+  <div class="label">Check (skip install if a version prints)</div>
+  <pre><code>git --version</code></pre>
+  <div class="label">Install if missing</div>
   <pre><code>winget install --id Git.Git -e --source winget</code></pre>
   <div class="label">Verify <em>(restart your terminal first so PATH picks it up)</em></div>
   <pre><code>git --version</code></pre>
@@ -175,110 +204,112 @@
 <div class="step" data-os="macos">
   <h3><span class="num">1.</span> Git</h3>
   <p class="why">Version control.</p>
-  <div class="label">Install</div>
-  <pre><code>brew install git</code></pre>
-  <div class="label">Verify</div>
+  <div class="label">Check (skip install if a version prints)</div>
   <pre><code>git --version</code></pre>
+  <div class="label">Install if missing</div>
+  <pre><code>brew install git</code></pre>
 </div>
 
 <div class="step" data-os="linux">
   <h3><span class="num">1.</span> Git</h3>
   <p class="why">Version control.</p>
-  <div class="label">Install</div>
-  <pre><code>sudo apt install -y git</code></pre>
-  <div class="label">Verify</div>
+  <div class="label">Check (skip install if a version prints)</div>
   <pre><code>git --version</code></pre>
+  <div class="label">Install if missing</div>
+  <pre><code>sudo apt install -y git</code></pre>
 </div>
 
 <!-- STEP 2: Node -->
 <div class="step" data-os="windows">
   <h3><span class="num">2.</span> Node.js LTS</h3>
   <p class="why">Required for many MCP servers, build tools, and modern AI tooling.</p>
-  <div class="label">Install</div>
-  <pre><code>winget install --id OpenJS.NodeJS.LTS -e --source winget</code></pre>
-  <div class="label">Verify</div>
+  <div class="label">Check (skip install if a version prints)</div>
   <pre><code>node --version
 npm --version</code></pre>
+  <div class="label">Install if missing</div>
+  <pre><code>winget install --id OpenJS.NodeJS.LTS -e --source winget</code></pre>
   <p class="expected">Expected: <code>v20.x.x</code> or later, npm <code>10.x.x</code>+</p>
 </div>
 
 <div class="step" data-os="macos">
   <h3><span class="num">2.</span> Node.js LTS</h3>
   <p class="why">Required for many MCP servers and build tools.</p>
-  <div class="label">Install</div>
-  <pre><code>brew install node@20
-brew link --overwrite node@20</code></pre>
-  <div class="label">Verify</div>
+  <div class="label">Check (skip install if a version prints)</div>
   <pre><code>node --version
 npm --version</code></pre>
+  <div class="label">Install if missing</div>
+  <pre><code>brew install node@20
+brew link --overwrite node@20</code></pre>
 </div>
 
 <div class="step" data-os="linux">
   <h3><span class="num">2.</span> Node.js LTS</h3>
   <p class="why">Required for many MCP servers and build tools.</p>
-  <div class="label">Install (uses NodeSource for current LTS)</div>
-  <pre><code>curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-sudo apt install -y nodejs</code></pre>
-  <div class="label">Verify</div>
+  <div class="label">Check (skip install if a version prints)</div>
   <pre><code>node --version
 npm --version</code></pre>
+  <div class="label">Install if missing (uses NodeSource for current LTS)</div>
+  <pre><code>curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt install -y nodejs</code></pre>
 </div>
 
 <!-- STEP 3: Python -->
 <div class="step" data-os="windows">
   <h3><span class="num">3.</span> Python 3</h3>
   <p class="why">Many AI tools, notebooks, and MCP servers expect Python 3 on the PATH.</p>
-  <div class="label">Install</div>
-  <pre><code>winget install --id Python.Python.3.12 -e --source winget</code></pre>
-  <div class="label">Verify</div>
+  <div class="label">Check (skip install if a version prints)</div>
   <pre><code>python --version
 pip --version</code></pre>
+  <div class="label">Install if missing</div>
+  <pre><code>winget install --id Python.Python.3.12 -e --source winget</code></pre>
   <p class="expected">Expected: <code>Python 3.12.x</code></p>
 </div>
 
 <div class="step" data-os="macos">
   <h3><span class="num">3.</span> Python 3</h3>
   <p class="why">Many AI tools and notebooks expect Python 3.</p>
-  <div class="label">Install</div>
-  <pre><code>brew install python@3.12</code></pre>
-  <div class="label">Verify</div>
+  <div class="label">Check (skip install if a version prints)</div>
   <pre><code>python3 --version
 pip3 --version</code></pre>
+  <div class="label">Install if missing</div>
+  <pre><code>brew install python@3.12</code></pre>
 </div>
 
 <div class="step" data-os="linux">
   <h3><span class="num">3.</span> Python 3</h3>
   <p class="why">Many AI tools and notebooks expect Python 3.</p>
-  <div class="label">Install</div>
-  <pre><code>sudo apt install -y python3 python3-pip python3-venv</code></pre>
-  <div class="label">Verify</div>
+  <div class="label">Check (skip install if a version prints)</div>
   <pre><code>python3 --version
 pip3 --version</code></pre>
+  <div class="label">Install if missing</div>
+  <pre><code>sudo apt install -y python3 python3-pip python3-venv</code></pre>
 </div>
 
 <!-- STEP 4: GitHub CLI -->
 <div class="step" data-os="windows">
   <h3><span class="num">4.</span> GitHub CLI (<code>gh</code>)</h3>
   <p class="why">Authenticate with GitHub, install <code>gh copilot</code>, and validate your Microsoft↔GitHub link.</p>
-  <div class="label">Install</div>
-  <pre><code>winget install --id GitHub.cli -e --source winget</code></pre>
-  <div class="label">Verify</div>
+  <div class="label">Check (skip install if a version prints)</div>
   <pre><code>gh --version</code></pre>
+  <div class="label">Install if missing</div>
+  <pre><code>winget install --id GitHub.cli -e --source winget</code></pre>
 </div>
 
 <div class="step" data-os="macos">
   <h3><span class="num">4.</span> GitHub CLI (<code>gh</code>)</h3>
   <p class="why">Authenticate, install <code>gh copilot</code>, validate Microsoft↔GitHub link.</p>
-  <div class="label">Install</div>
-  <pre><code>brew install gh</code></pre>
-  <div class="label">Verify</div>
+  <div class="label">Check (skip install if a version prints)</div>
   <pre><code>gh --version</code></pre>
+  <div class="label">Install if missing</div>
+  <pre><code>brew install gh</code></pre>
 </div>
 
 <div class="step" data-os="linux">
   <h3><span class="num">4.</span> GitHub CLI (<code>gh</code>)</h3>
   <p class="why">Authenticate, install <code>gh copilot</code>, validate Microsoft↔GitHub link.</p>
-  <div class="label">Install</div>
+  <div class="label">Check (skip install if a version prints)</div>
+  <pre><code>gh --version</code></pre>
+  <div class="label">Install if missing</div>
   <pre><code>(type -p wget &gt;/dev/null || sudo apt install -y wget) \
   &amp;&amp; sudo mkdir -p -m 755 /etc/apt/keyrings \
   &amp;&amp; wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg &gt; /dev/null \
@@ -286,19 +317,17 @@ pip3 --version</code></pre>
   &amp;&amp; echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list &gt; /dev/null \
   &amp;&amp; sudo apt update \
   &amp;&amp; sudo apt install gh -y</code></pre>
-  <div class="label">Verify</div>
-  <pre><code>gh --version</code></pre>
 </div>
 
 <!-- STEP 5: Terminal (Windows only) -->
 <div class="step" data-os="windows">
   <h3><span class="num">5.</span> Windows Terminal + PowerShell 7</h3>
   <p class="why">PowerShell 7 is cross-platform, faster, and has features Windows PowerShell 5.1 doesn't. Windows Terminal is the modern tabbed terminal — runs <code>cmd</code>, PS 5.1, PS 7, and WSL side-by-side.</p>
-  <div class="label">Install</div>
+  <div class="label">Check (skip install if a version prints)</div>
+  <pre><code>$PSVersionTable.PSVersion</code></pre>
+  <div class="label">Install if missing</div>
   <pre><code>winget install --id Microsoft.WindowsTerminal -e --source winget
 winget install --id Microsoft.PowerShell -e --source winget</code></pre>
-  <div class="label">Verify (open Windows Terminal → click the ⌄ dropdown → choose "PowerShell")</div>
-  <pre><code>$PSVersionTable.PSVersion</code></pre>
   <p class="expected">Expected: <code>Major 7</code>. After installing PS 7, Windows Terminal usually picks it up automatically as a profile. If not, open Terminal settings (Ctrl+,) → Add a new profile → PowerShell.</p>
 </div>
 
@@ -306,41 +335,42 @@ winget install --id Microsoft.PowerShell -e --source winget</code></pre>
 <div class="step" data-editor="vscode" data-os="windows">
   <h3><span class="num">6.</span> VS Code</h3>
   <p class="why">Microsoft's editor with first-class Copilot + MCP integration.</p>
-  <div class="label">Install</div>
-  <pre><code>winget install --id Microsoft.VisualStudioCode -e --source winget</code></pre>
-  <div class="label">Verify <em>(restart your terminal so <code>code</code> is on PATH)</em></div>
+  <div class="label">Check (skip install if a version prints — may need to reopen terminal)</div>
   <pre><code>code --version</code></pre>
+  <div class="label">Install if missing</div>
+  <pre><code>winget install --id Microsoft.VisualStudioCode -e --source winget</code></pre>
+  <p class="expected">After install, close and reopen your terminal so <code>code</code> lands on PATH, then re-run the check.</p>
 </div>
 
 <div class="step" data-editor="vscode" data-os="macos">
   <h3><span class="num">6.</span> VS Code</h3>
   <p class="why">Microsoft's editor with first-class Copilot + MCP integration.</p>
-  <div class="label">Install</div>
-  <pre><code>brew install --cask visual-studio-code</code></pre>
-  <div class="label">Verify</div>
+  <div class="label">Check (skip install if a version prints)</div>
   <pre><code>code --version</code></pre>
-  <p class="expected">If <code>code</code> isn't found, open VS Code → Cmd+Shift+P → "Shell Command: Install 'code' command in PATH".</p>
+  <div class="label">Install if missing</div>
+  <pre><code>brew install --cask visual-studio-code</code></pre>
+  <p class="expected">If <code>code</code> still isn't found after install, open VS Code → Cmd+Shift+P → "Shell Command: Install 'code' command in PATH".</p>
 </div>
 
 <div class="step" data-editor="vscode" data-os="linux">
   <h3><span class="num">6.</span> VS Code</h3>
   <p class="why">Microsoft's editor with first-class Copilot + MCP integration.</p>
-  <div class="label">Install (snap is simplest; .deb also works)</div>
-  <pre><code>sudo snap install code --classic</code></pre>
-  <div class="label">Verify</div>
+  <div class="label">Check (skip install if a version prints)</div>
   <pre><code>code --version</code></pre>
+  <div class="label">Install if missing (snap is simplest; .deb also works)</div>
+  <pre><code>sudo snap install code --classic</code></pre>
 </div>
 
 <div class="step" data-editor="vscode">
   <h3><span class="num">7.</span> VS Code extensions for Copilot</h3>
   <p class="why">GitHub Copilot in the editor + chat panel. Copilot Chat is the agent you'll spend most of your time with.</p>
-  <div class="label">Install</div>
+  <div class="label">Check (skip install if a version prints)</div>
+  <pre><code>code --list-extensions</code></pre>
+  <div class="label">Install if missing</div>
   <pre><code>code --install-extension GitHub.copilot
 code --install-extension GitHub.copilot-chat
 code --install-extension ms-vscode.powershell
 code --install-extension ms-python.python</code></pre>
-  <div class="label">Verify (list installed)</div>
-  <pre><code>code --list-extensions</code></pre>
   <p class="expected">You should see all 4 IDs above. Open VS Code → bottom-right corner shows a Copilot icon when you're signed in.</p>
 </div>
 
@@ -356,25 +386,29 @@ code --install-extension ms-python.python</code></pre>
 <div class="step" data-editor="cursor" data-os="windows">
   <h3><span class="num">6.</span> Cursor</h3>
   <p class="why">AI-native fork of VS Code. Has its own chat + agent built in.</p>
-  <div class="label">Install</div>
+  <div class="label">Check (skip install if a version prints)</div>
+  <pre><code>cursor --version</code></pre>
+  <div class="label">Install if missing</div>
   <pre><code>winget install --id Anysphere.Cursor -e --source winget</code></pre>
-  <div class="label">Verify</div>
   <p class="expected">Launch Cursor from the Start menu. Sign in on first run.</p>
 </div>
 
 <div class="step" data-editor="cursor" data-os="macos">
   <h3><span class="num">6.</span> Cursor</h3>
   <p class="why">AI-native fork of VS Code.</p>
-  <div class="label">Install</div>
+  <div class="label">Check (skip install if a version prints)</div>
+  <pre><code>cursor --version</code></pre>
+  <div class="label">Install if missing</div>
   <pre><code>brew install --cask cursor</code></pre>
-  <div class="label">Verify</div>
   <p class="expected">Launch Cursor from Applications. Sign in on first run.</p>
 </div>
 
 <div class="step" data-editor="cursor" data-os="linux">
   <h3><span class="num">6.</span> Cursor</h3>
   <p class="why">AI-native fork of VS Code.</p>
-  <div class="label">Install</div>
+  <div class="label">Check (skip install if a version prints)</div>
+  <pre><code>cursor --version</code></pre>
+  <div class="label">Install if missing</div>
   <p class="expected">Download the <code>.AppImage</code> from <a href="https://cursor.com/downloads" target="_blank" rel="noopener">cursor.com/downloads</a> and mark it executable: <code>chmod +x Cursor-*.AppImage</code>.</p>
 </div>
 
@@ -392,11 +426,21 @@ code --install-extension ms-python.python</code></pre>
   <div class="label">Sign in to <code>gh</code> first</div>
   <pre><code>gh auth login</code></pre>
   <p class="expected">Pick <strong>GitHub.com</strong> → HTTPS → browser auth. Use the GitHub account that's linked to your Microsoft work account.</p>
+  <div class="label">Check (skip install if it prints a version)</div>
+  <pre><code>gh copilot --version</code></pre>
   <div class="label">Install the Copilot extension</div>
   <pre><code>gh extension install github/gh-copilot</code></pre>
-  <div class="label">Verify</div>
-  <pre><code>gh copilot --version
-gh copilot suggest "list all files modified in the last week"</code></pre>
+  <div class="label">Verify it works</div>
+  <pre><code>gh copilot --help
+gh copilot explain "git status"</code></pre>
+  <p class="expected">First run of <code>explain</code> or <code>suggest</code> prompts you to opt into usage analytics (Y/N) — answer once and it remembers.</p>
+  <div class="callout warn">
+    <strong>Common errors and fixes:</strong>
+    <ul>
+      <li><code>Error: unknown command "status" for "copilot"</code> — <code>gh copilot status</code> isn't a real subcommand. Use <code>gh copilot --help</code> to see the valid ones (<code>suggest</code>, <code>explain</code>, <code>alias</code>, <code>config</code>).</li>
+      <li><code>Error: Unexpected problem with GitHub Copilot in the CLI</code> on <code>gh copilot suggest "..."</code> — usually means your GitHub account doesn't have a Copilot license yet. Complete <strong>Step 10</strong> below to validate the GitHub↔Microsoft link, then retry. Also try <code>gh auth refresh -h github.com -s copilot</code> to refresh your token scopes.</li>
+    </ul>
+  </div>
 </div>
 
 <!-- STEP 10: GH<->MS link validation -->
@@ -417,9 +461,10 @@ gh copilot suggest "list all files modified in the last week"</code></pre>
   <pre><code>gh api user --jq .login</code></pre>
   <p class="expected">Should print your GitHub username. If it shows someone else's, run <code>gh auth switch</code>.</p>
 
-  <div class="label">3. Confirm the Copilot entitlement</div>
-  <pre><code>gh copilot status</code></pre>
-  <p class="expected">Look for "You have access to GitHub Copilot." If it says you don't, follow the link to <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> and link your account to Microsoft.</p>
+  <div class="label">3. Confirm the Copilot entitlement (functional check)</div>
+  <pre><code>gh copilot explain "git status"</code></pre>
+  <p class="expected">If you get a plain-English explanation, your entitlement is working — you're done. <br>If you see <em>"Unexpected problem with GitHub Copilot in the CLI"</em>, your account isn't linked yet. Open <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> and complete the link to your Microsoft work email. Then run <code>gh auth refresh -h github.com -s copilot</code> and retry.</p>
+  <p class="expected"><em>Heads-up: <code>gh copilot status</code> is not a real subcommand — that error message is harmless, just use <code>explain</code> as the functional check.</em></p>
 </div>
 
 <!-- STEP 11: Agency -->
@@ -429,9 +474,25 @@ gh copilot suggest "list all files modified in the last week"</code></pre>
 <div class="step" data-os="windows">
   <h3><span class="num">11.</span> Install Agency Copilot</h3>
   <p class="why">PM-specific Copilot with ADO / Kusto / IcM skills baked in.</p>
-  <div class="label">Run in PowerShell (any version)</div>
+  <div class="label">Check (skip install if it prints a version)</div>
+  <pre><code>agency --version</code></pre>
+  <div class="label">Install — run in PowerShell (any version)</div>
   <pre><code>iex "&amp; { $(irm aka.ms/InstallTool.ps1) } agency"</code></pre>
-  <p class="expected">The Microsoft installer launches and walks you through sign-in. After install, launch <strong>Agency</strong> from the Start menu.</p>
+  <p class="expected">The Microsoft installer launches and walks you through sign-in. <strong>Close and reopen your terminal</strong> after install so <code>agency</code> lands on PATH.</p>
+</div>
+
+<div class="step" data-os="windows">
+  <h3><span class="num">12.</span> Validate Agency Copilot</h3>
+  <p class="why">Three quick signals that Agency is installed, on PATH, and signed in.</p>
+  <div class="label">1. Binary on PATH</div>
+  <pre><code>agency --version</code></pre>
+  <p class="expected">Prints a version string. If "command not found", reopen your terminal; if still missing, re-run the install in Step 11.</p>
+  <div class="label">2. Help works (CLI is loading skills)</div>
+  <pre><code>agency --help</code></pre>
+  <p class="expected">Should list top-level commands.</p>
+  <div class="label">3. Launch an interactive session</div>
+  <pre><code>agency</code></pre>
+  <p class="expected">First run prompts you to sign in with your Microsoft work account in the browser. After sign-in completes, you land at an interactive prompt — type <code>/help</code> to confirm skills loaded, then <code>/exit</code>. You're done.</p>
 </div>
 
 <div class="step" data-os="macos">
