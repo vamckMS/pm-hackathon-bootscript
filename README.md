@@ -26,48 +26,45 @@ Agency Copilot install (so you don't waste a re-run cycle later).
 
 ## Quick start
 
-The bootstrap makes **no prerequisite assumptions**:
+Same shape as Agency Copilot's `iex "& { $(irm aka.ms/InstallTool.ps1) } agency"` —
+**one line, no clone, no zip, no Git, no `install.cmd`.** The whole bootstrap
+(script + 8 modules + config) is fetched in-memory from `raw.githubusercontent.com`
+and executed via `iex`, so the launcher is immune to GPO-enforced
+`ExecutionPolicy` (no script file is "loaded" in the policy-engine sense).
+
+### From PowerShell (Windows PowerShell 5.1 or PowerShell 7+)
+
+```powershell
+iex "& { $(irm https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/bootstrap.ps1) }"
+```
+
+### From CMD (Win+R → `cmd`)
+
+```cmd
+powershell -NoProfile -Command "iex (irm 'https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/bootstrap.ps1')"
+```
+
+### With arguments
+
+```powershell
+iex "& { $(irm https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/bootstrap.ps1) } -WhatIf -GithubUsername alice-msft"
+```
+
+### Already have the repo locally?
+
+Double-click **`bootstrap.cmd`** (or run `.\bootstrap.cmd` from any shell). It
+unblocks files and invokes `bootstrap.ps1` via the same GPO-immune ScriptBlock
+trick.
+
+### Zero-assumption matrix
 
 | Assumption you might expect | Reality |
 |---|---|
-| You have Git installed | ❌ Not required. The web installer uses `curl` (built into Windows 10/11) to download a zip. Git gets installed *during* the bootstrap. |
-| You're in PowerShell | ❌ Not required. The launcher is a `.cmd` and works from CMD, PowerShell, or a double-click. |
-| Your ExecutionPolicy allows scripts | ❌ Not required. The launcher loads scripts as **text** and invokes them via `[ScriptBlock]::Create` — this bypasses ExecutionPolicy **even when GPO sets `MachinePolicy`/`UserPolicy`** (where `-ExecutionPolicy Bypass` is normally ignored). |
-| You unblocked the zip you downloaded | ❌ Not required. The launcher runs `Unblock-File` across the tree first. |
-| You're running as Administrator | ❌ Not required. The script self-elevates with a UAC prompt. |
-
-### Option A — recommended: one-liner, zero prereqs
-
-Works from **CMD** (Win+R → `cmd`) **or PowerShell**. No Git, no clone, no
-download steps. Just paste and press Enter:
-
-```cmd
-curl -L -o %TEMP%\pmboot.cmd https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/install.cmd && %TEMP%\pmboot.cmd
-```
-
-This downloads `install.cmd` with `curl`, which then fetches the repo zip via
-`Invoke-WebRequest`, expands it, clears Mark-of-the-Web, and launches the
-bootstrap. **No `git` binary is invoked.**
-
-### Option B — you already have the folder locally
-
-If you downloaded the zip manually from GitHub (Code → Download ZIP) and
-extracted it, or `git clone`d it: **double-click `bootstrap.cmd`** (or call it
-from any shell). It handles MOTW, ExecutionPolicy, and UAC for you.
-
-```cmd
-:: From CMD
-bootstrap.cmd
-```
-
-```powershell
-# From PowerShell
-.\bootstrap.cmd
-```
-
-> ⚠️ Running `bootstrap.ps1` directly is **not recommended** — it only works if
-> you're already in PowerShell, ExecutionPolicy allows scripts, and the files
-> aren't Mark-of-the-Web blocked. `bootstrap.cmd` removes all three concerns.
+| Git installed | ❌ Not required. Nothing is cloned; bootstrap streams itself + modules over HTTPS. Git gets installed *during* the run. |
+| You're in PowerShell | ❌ Not required. CMD one-liner above shells out via `powershell -Command`. |
+| ExecutionPolicy allows scripts | ❌ Not required. `irm` + `iex` is inline command execution; ExecutionPolicy (including GPO `MachinePolicy`/`UserPolicy`) does not gate it. |
+| You unblocked a downloaded zip | ❌ Not required. Nothing is downloaded to disk in the remote path. |
+| You're running as Administrator | ❌ Not required. The script self-elevates via UAC and re-fetches itself in the elevated process. |
 
 ## Flags
 
@@ -102,9 +99,8 @@ Edit `config\extensions.json` and re-run.
 
 ```
 pm-hackathon-bootscript/
-├── install.cmd                    # Zero-prereq web installer (CMD/PS agnostic)
-├── bootstrap.cmd                  # Local launcher: unblocks files + runs .ps1
-├── bootstrap.ps1                  # Entry point (self-elevates, self-unblocks)
+├── bootstrap.ps1                  # Entry point (dual-mode: local OR iex-from-URL)
+├── bootstrap.cmd                  # Local CMD launcher (only needed if running offline)
 ├── README.md
 ├── config/
 │   └── extensions.json            # VS Code extensions list

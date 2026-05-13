@@ -10,6 +10,12 @@
     Azure MCP Server, ...), the gh-copilot extension, validates the GitHub<->Microsoft
     link for unlimited Copilot tokens, and installs Agency Copilot.
 
+    Runs in two modes automatically:
+      - LOCAL  : when invoked from a file on disk ($PSCommandPath set).
+      - REMOTE : when piped via `iex (irm ...)`. Modules are fetched from
+                 raw.githubusercontent.com on the fly. Same UX as Agency's
+                 `iex "& { $(irm aka.ms/InstallTool.ps1) } agency"`.
+
 .PARAMETER WhatIf
     Detect-only pass — does not change the system. Use to preview what would happen.
 
@@ -28,13 +34,13 @@
     resolves and downloads the LATEST release from the repo. Only set this to roll back.
 
 .EXAMPLE
-    .\bootstrap.ps1
+    # Seamless one-liner (no clone, no download, GPO-immune):
+    iex "& { $(irm https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/bootstrap.ps1) }"
 
 .EXAMPLE
-    .\bootstrap.ps1 -WhatIf
-
-.EXAMPLE
-    .\bootstrap.ps1 -Force vscode-extensions -GithubUsername alice-msft
+    # From a local clone / zip:
+    .\bootstrap.cmd            # CMD / double-click
+    .\bootstrap.ps1            # PowerShell (if ExecutionPolicy allows)
 
 .NOTES
     Logs:  %LOCALAPPDATA%\PMHackathonBootstrap\logs\
@@ -50,6 +56,18 @@ param(
     [string]$AgencyTag = ''
 )
 
+# ---------- Source-of-truth URLs (used in remote mode and self-elevation) ----------
+$script:BootstrapUrl = 'https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/bootstrap.ps1'
+$script:BaseUrl      = 'https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main'
+
+# ---------- Mode detection ----------
+# Remote mode = invoked via `iex (irm ...)` — no script file on disk.
+$script:Here     = if ($PSCommandPath) { Split-Path -Parent $PSCommandPath } else { $null }
+$script:IsRemote = -not $script:Here
+
+# TLS 1.2 for older Windows PowerShell 5.1 hosts
+try { [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12 } catch { }
+
 # ---------- Self-elevate ----------
 function Test-IsAdmin {
     $id = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -59,7 +77,6 @@ function Test-IsAdmin {
 if (-not (Test-IsAdmin)) {
     Write-Host "Re-launching elevated..." -ForegroundColor Yellow
 
-    # Build the parameter passthrough string. Escape single quotes by doubling.
     function _q([string]$s) { "'" + ($s -replace "'", "''") + "'" }
     $params = @()
     if ($WhatIf)             { $params += '-WhatIf' }
@@ -69,13 +86,16 @@ if (-not (Test-IsAdmin)) {
     if ($AgencyTag)          { $params += '-AgencyTag ' + (_q $AgencyTag) }
     $paramStr = ($params -join ' ')
 
-    # Use -EncodedCommand with a scriptblock created from the file's TEXT.
-    # This bypasses ExecutionPolicy even when MachinePolicy/UserPolicy is set
-    # by GPO (where -ExecutionPolicy Bypass on the command line is ignored),
-    # because we're invoking inline commands, not loading a script file.
-    $scriptPath = $PSCommandPath
-    $cmd = "& ([ScriptBlock]::Create((Get-Content -Raw -LiteralPath " + (_q $scriptPath) + "))) $paramStr"
-    $bytes = [System.Text.Encoding]::Unicode.GetBytes($cmd)
+    if ($script:IsRemote) {
+        # Remote mode: elevated process re-fetches and pipes via iex. Nothing on disk.
+        $cmd = "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; iex `"& { `$(irm '$script:BootstrapUrl') } $paramStr`""
+    } else {
+        # Local mode: elevated process loads the file as text and runs it via ScriptBlock,
+        # so GPO-enforced ExecutionPolicy (MachinePolicy/UserPolicy) cannot block it.
+        $cmd = "& ([ScriptBlock]::Create((Get-Content -Raw -LiteralPath " + (_q $PSCommandPath) + "))) $paramStr"
+    }
+
+    $bytes   = [System.Text.Encoding]::Unicode.GetBytes($cmd)
     $encoded = [Convert]::ToBase64String($bytes)
 
     $argList = @('-NoProfile','-ExecutionPolicy','Bypass','-EncodedCommand',$encoded)
@@ -84,41 +104,52 @@ if (-not (Test-IsAdmin)) {
 }
 
 $ErrorActionPreference = 'Stop'
-Set-ExecutionPolicy Bypass -Scope Process -Force | Out-Null
+Set-ExecutionPolicy Bypass -Scope Process -Force -ErrorAction SilentlyContinue | Out-Null
 
-# ---------- Load modules ----------
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-
-# Clear Mark-of-the-Web on all files in our tree so dot-sourced modules run
-# even if the user downloaded this repo as a zip from a browser.
-try {
-    Get-ChildItem -Path $here -Recurse -File -ErrorAction SilentlyContinue |
-        Unblock-File -ErrorAction SilentlyContinue
-} catch { }
-
-$mod  = Join-Path $here 'modules'
-$cfg  = Join-Path $here 'config\extensions.json'
-
-# Load each module by reading its text and dot-sourcing a ScriptBlock created
-# from that text. This bypasses ExecutionPolicy entirely — even when GPO
-# enforces MachinePolicy=AllSigned/RemoteSigned, which would block both
-# Import-Module *.psm1 and dot-sourcing *.ps1 files directly. Nothing here
-# loads a file "as a script"; we load text and execute it as inline commands.
+# ---------- Module loader (dual mode) ----------
+# Loads scripts as TEXT and dot-sources via [ScriptBlock]::Create.
+# Local mode reads from disk; remote mode fetches from raw.githubusercontent.com.
+# Either way, no script FILE is executed — so GPO ExecutionPolicy cannot block it.
 function Import-Local {
-    param([Parameter(Mandatory)][string]$Path)
-    $content = Get-Content -Raw -LiteralPath $Path
+    param([Parameter(Mandatory)][string]$RelPath)
+    if ($script:IsRemote) {
+        $url = ($script:BaseUrl + '/' + $RelPath).Replace('\','/')
+        Write-Host "[load] $url" -ForegroundColor DarkGray
+        $content = (Invoke-WebRequest -Uri $url -UseBasicParsing).Content
+    } else {
+        $full = Join-Path $script:Here $RelPath
+        $content = Get-Content -Raw -LiteralPath $full
+    }
     . ([ScriptBlock]::Create($content))
 }
 
-Import-Local (Join-Path $mod 'Common.psm1')
-Import-Local (Join-Path $mod 'Install-Prereqs.ps1')
-Import-Local (Join-Path $mod 'Install-CoreTools.ps1')
-Import-Local (Join-Path $mod 'Install-Terminal.ps1')
-Import-Local (Join-Path $mod 'Install-VSCode.ps1')
-Import-Local (Join-Path $mod 'Install-GhCli.ps1')
-Import-Local (Join-Path $mod 'Test-GithubLink.ps1')
-Import-Local (Join-Path $mod 'Install-AgencyCopilot.ps1')
-Import-Local (Join-Path $mod 'Show-Summary.ps1')
+# Clear MOTW on local files so any subsequent file-based ops are safe.
+if (-not $script:IsRemote) {
+    try {
+        Get-ChildItem -Path $script:Here -Recurse -File -ErrorAction SilentlyContinue |
+            Unblock-File -ErrorAction SilentlyContinue
+    } catch { }
+}
+
+Import-Local 'modules/Common.psm1'
+Import-Local 'modules/Install-Prereqs.ps1'
+Import-Local 'modules/Install-CoreTools.ps1'
+Import-Local 'modules/Install-Terminal.ps1'
+Import-Local 'modules/Install-VSCode.ps1'
+Import-Local 'modules/Install-GhCli.ps1'
+Import-Local 'modules/Test-GithubLink.ps1'
+Import-Local 'modules/Install-AgencyCopilot.ps1'
+Import-Local 'modules/Show-Summary.ps1'
+
+# Resolve the extensions config path (Install-VSCode wants a file path).
+if ($script:IsRemote) {
+    $cfg = Join-Path $env:TEMP 'pm-hackathon-extensions.json'
+    Write-Host "[load] $script:BaseUrl/config/extensions.json -> $cfg" -ForegroundColor DarkGray
+    (Invoke-WebRequest -Uri "$script:BaseUrl/config/extensions.json" -UseBasicParsing).Content |
+        Out-File -FilePath $cfg -Encoding UTF8
+} else {
+    $cfg = Join-Path $script:Here 'config\extensions.json'
+}
 
 Initialize-Bootstrap -WhatIfMode:$WhatIf -Force $Force
 Assert-Admin
