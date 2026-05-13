@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PM Hackathon Setup Guide</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1f2328;
+    --muted: #57606a;
+    --card: #f6f8fa;
+    --border: #d0d7de;
+    --accent: #0969da;
+    --accent-bg: #ddf4ff;
+    --code-bg: #0d1117;
+    --code-fg: #e6edf3;
+    --ok: #1a7f37;
+    --warn: #9a6700;
+    --danger: #cf222e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --fg: #e6edf3;
+      --muted: #8b949e;
+      --card: #161b22;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent-bg: #1f2d3d;
+      --ok: #3fb950;
+      --warn: #d29922;
+      --danger: #f85149;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--fg);
+    background: var(--bg);
+    line-height: 1.55;
+    margin: 0;
+    padding: 0 1rem;
+  }
+  .container { max-width: 880px; margin: 0 auto; padding: 2rem 0 6rem; }
+  h1 { font-size: 2rem; margin: 0 0 .25rem; }
+  h2 { font-size: 1.4rem; margin: 2.5rem 0 .75rem; padding-bottom: .35rem; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 1.1rem; margin: 1.5rem 0 .5rem; }
+  p.lead { color: var(--muted); margin: 0 0 1.5rem; }
+  a { color: var(--accent); }
+  code { background: var(--card); padding: 1px 6px; border-radius: 4px; font-size: .92em; }
+  pre {
+    background: var(--code-bg); color: var(--code-fg);
+    padding: .9rem 1rem; border-radius: 6px;
+    overflow-x: auto; font-size: .9rem;
+    margin: .25rem 0;
+    position: relative;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+  .copy-btn {
+    position: absolute; top: .35rem; right: .35rem;
+    background: rgba(255,255,255,.08); color: #e6edf3;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 4px; padding: 2px 8px; font-size: .75rem;
+    cursor: pointer;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,.16); }
+  .copy-btn.ok { background: rgba(63,185,80,.25); border-color: rgba(63,185,80,.5); }
+
+  .picker { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 1.5rem 0; }
+  .picker h3 { margin-top: 0; }
+  .options { display: flex; gap: .6rem; flex-wrap: wrap; }
+  .options label {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .45rem .85rem;
+    border: 1px solid var(--border); border-radius: 999px;
+    cursor: pointer; user-select: none;
+    background: var(--bg);
+  }
+  .options input[type=radio] { accent-color: var(--accent); }
+  .options input[type=radio]:checked + span { font-weight: 600; }
+  .options label:has(input:checked) { border-color: var(--accent); background: var(--accent-bg); }
+
+  .step { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.1rem; margin: 1rem 0; }
+  .step h3 { margin-top: 0; display: flex; align-items: baseline; gap: .5rem; }
+  .step .num { color: var(--accent); font-weight: 700; }
+  .step .why { color: var(--muted); margin: 0 0 .6rem; font-size: .95rem; }
+  .step .label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: .8rem 0 .15rem; }
+  .step .expected { font-size: .85rem; color: var(--muted); margin: .35rem 0 0; }
+
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-bg); padding: .7rem 1rem; border-radius: 6px; margin: 1rem 0; }
+  .callout.warn { border-color: var(--warn); background: rgba(154,103,0,.10); }
+  .callout.danger { border-color: var(--danger); background: rgba(207,34,46,.10); }
+
+  details summary { cursor: pointer; font-weight: 600; padding: .35rem 0; }
+  details { border: 1px solid var(--border); border-radius: 8px; padding: .25rem 1rem; margin: 1rem 0; background: var(--card); }
+  details[open] { padding-bottom: .75rem; }
+
+  footer { color: var(--muted); margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: .9rem; }
+
+  .hidden { display: none; }
+  .badge { display: inline-block; padding: 1px 8px; font-size: .75rem; border-radius: 999px; background: var(--card); border: 1px solid var(--border); color: var(--muted); margin-left: .35rem; vertical-align: middle; }
+  .badge.tested { color: var(--ok); border-color: var(--ok); }
+  .badge.untested { color: var(--warn); border-color: var(--warn); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>PM Hackathon Setup Guide</h1>
+<p class="lead">Everything you need to participate in the Microsoft PM hackathon — installed step-by-step, with a verify command after each step so you know it worked. Pick your OS and editor below; the guide will show only the steps that apply to you.</p>
+
+<div class="callout">
+  <strong>Why not just one script?</strong> Earlier versions of this repo shipped a PowerShell bootstrap. Windows Defender heuristically flags <code>iex (irm …)</code> download-and-execute patterns as Trojan on managed corp machines — even when the script content is clean. So we switched to plain <code>winget</code> / <code>brew</code> / <code>apt</code> commands you paste yourself. The old script is preserved in <a href="https://github.com/vamckMS/pm-hackathon-bootscript/tree/main/legacy">/legacy</a> for advanced users on unmanaged machines.
+</div>
+
+<!-- Decision tree -->
+<div class="picker">
+  <h3>1. Which OS are you on?</h3>
+  <div class="options" id="os-options">
+    <label><input type="radio" name="os" value="windows" checked><span>Windows <span class="badge tested">tested</span></span></label>
+    <label><input type="radio" name="os" value="macos"><span>macOS <span class="badge untested">PRs welcome</span></span></label>
+    <label><input type="radio" name="os" value="linux"><span>Linux <span class="badge untested">PRs welcome</span></span></label>
+  </div>
+</div>
+
+<div class="picker">
+  <h3>2. Editor / agent preference?</h3>
+  <div class="options" id="editor-options">
+    <label><input type="radio" name="editor" value="vscode" checked><span>VS Code <span class="badge">+ Copilot + MCP</span></span></label>
+    <label><input type="radio" name="editor" value="cursor"><span>Cursor <span class="badge">AI IDE</span></span></label>
+    <label><input type="radio" name="editor" value="cli"><span>CLI only <span class="badge">gh copilot</span></span></label>
+  </div>
+</div>
+
+<p class="lead" id="track-label"></p>
+
+<!-- STEP 0: package manager -->
+<div class="step" data-os="windows">
+  <h3><span class="num">0.</span> Verify you have <code>winget</code></h3>
+  <p class="why">winget ships with Windows 10 1809+ / Windows 11. On most modern corp laptops it's already there.</p>
+  <div class="label">Verify</div>
+  <pre><code>winget --version</code></pre>
+  <p class="expected">Expected: something like <code>v1.7.x</code>. If you get "command not found," install <a href="https://aka.ms/getwinget" target="_blank" rel="noopener">App Installer from the Microsoft Store</a>, then close and reopen your terminal.</p>
+</div>
+
+<div class="step" data-os="macos">
+  <h3><span class="num">0.</span> Install Homebrew</h3>
+  <p class="why">Homebrew is the de-facto macOS package manager.</p>
+  <div class="label">Install (run in Terminal)</div>
+  <pre><code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>brew --version</code></pre>
+  <p class="expected">Expected: <code>Homebrew 4.x.x</code></p>
+</div>
+
+<div class="step" data-os="linux">
+  <h3><span class="num">0.</span> Make sure your package index is fresh</h3>
+  <p class="why">Commands below assume Debian/Ubuntu (<code>apt</code>). For Fedora/RHEL substitute <code>dnf</code>; for Arch <code>pacman -S</code>.</p>
+  <div class="label">Update package index</div>
+  <pre><code>sudo apt update</code></pre>
+</div>
+
+<!-- STEP 1: Git -->
+<div class="step" data-os="windows">
+  <h3><span class="num">1.</span> Git</h3>
+  <p class="why">Version control. You'll use it for every hackathon project.</p>
+  <div class="label">Install</div>
+  <pre><code>winget install --id Git.Git -e --source winget</code></pre>
+  <div class="label">Verify <em>(restart your terminal first so PATH picks it up)</em></div>
+  <pre><code>git --version</code></pre>
+  <p class="expected">Expected: <code>git version 2.x.x.windows.x</code></p>
+</div>
+
+<div class="step" data-os="macos">
+  <h3><span class="num">1.</span> Git</h3>
+  <p class="why">Version control.</p>
+  <div class="label">Install</div>
+  <pre><code>brew install git</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>git --version</code></pre>
+</div>
+
+<div class="step" data-os="linux">
+  <h3><span class="num">1.</span> Git</h3>
+  <p class="why">Version control.</p>
+  <div class="label">Install</div>
+  <pre><code>sudo apt install -y git</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>git --version</code></pre>
+</div>
+
+<!-- STEP 2: Node -->
+<div class="step" data-os="windows">
+  <h3><span class="num">2.</span> Node.js LTS</h3>
+  <p class="why">Required for many MCP servers, build tools, and modern AI tooling.</p>
+  <div class="label">Install</div>
+  <pre><code>winget install --id OpenJS.NodeJS.LTS -e --source winget</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>node --version
+npm --version</code></pre>
+  <p class="expected">Expected: <code>v20.x.x</code> or later, npm <code>10.x.x</code>+</p>
+</div>
+
+<div class="step" data-os="macos">
+  <h3><span class="num">2.</span> Node.js LTS</h3>
+  <p class="why">Required for many MCP servers and build tools.</p>
+  <div class="label">Install</div>
+  <pre><code>brew install node@20
+brew link --overwrite node@20</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>node --version
+npm --version</code></pre>
+</div>
+
+<div class="step" data-os="linux">
+  <h3><span class="num">2.</span> Node.js LTS</h3>
+  <p class="why">Required for many MCP servers and build tools.</p>
+  <div class="label">Install (uses NodeSource for current LTS)</div>
+  <pre><code>curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt install -y nodejs</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>node --version
+npm --version</code></pre>
+</div>
+
+<!-- STEP 3: Python -->
+<div class="step" data-os="windows">
+  <h3><span class="num">3.</span> Python 3</h3>
+  <p class="why">Many AI tools, notebooks, and MCP servers expect Python 3 on the PATH.</p>
+  <div class="label">Install</div>
+  <pre><code>winget install --id Python.Python.3.12 -e --source winget</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>python --version
+pip --version</code></pre>
+  <p class="expected">Expected: <code>Python 3.12.x</code></p>
+</div>
+
+<div class="step" data-os="macos">
+  <h3><span class="num">3.</span> Python 3</h3>
+  <p class="why">Many AI tools and notebooks expect Python 3.</p>
+  <div class="label">Install</div>
+  <pre><code>brew install python@3.12</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>python3 --version
+pip3 --version</code></pre>
+</div>
+
+<div class="step" data-os="linux">
+  <h3><span class="num">3.</span> Python 3</h3>
+  <p class="why">Many AI tools and notebooks expect Python 3.</p>
+  <div class="label">Install</div>
+  <pre><code>sudo apt install -y python3 python3-pip python3-venv</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>python3 --version
+pip3 --version</code></pre>
+</div>
+
+<!-- STEP 4: GitHub CLI -->
+<div class="step" data-os="windows">
+  <h3><span class="num">4.</span> GitHub CLI (<code>gh</code>)</h3>
+  <p class="why">Authenticate with GitHub, install <code>gh copilot</code>, and validate your Microsoft↔GitHub link.</p>
+  <div class="label">Install</div>
+  <pre><code>winget install --id GitHub.cli -e --source winget</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>gh --version</code></pre>
+</div>
+
+<div class="step" data-os="macos">
+  <h3><span class="num">4.</span> GitHub CLI (<code>gh</code>)</h3>
+  <p class="why">Authenticate, install <code>gh copilot</code>, validate Microsoft↔GitHub link.</p>
+  <div class="label">Install</div>
+  <pre><code>brew install gh</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>gh --version</code></pre>
+</div>
+
+<div class="step" data-os="linux">
+  <h3><span class="num">4.</span> GitHub CLI (<code>gh</code>)</h3>
+  <p class="why">Authenticate, install <code>gh copilot</code>, validate Microsoft↔GitHub link.</p>
+  <div class="label">Install</div>
+  <pre><code>(type -p wget &gt;/dev/null || sudo apt install -y wget) \
+  &amp;&amp; sudo mkdir -p -m 755 /etc/apt/keyrings \
+  &amp;&amp; wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg &gt; /dev/null \
+  &amp;&amp; sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+  &amp;&amp; echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list &gt; /dev/null \
+  &amp;&amp; sudo apt update \
+  &amp;&amp; sudo apt install gh -y</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>gh --version</code></pre>
+</div>
+
+<!-- STEP 5: Terminal (Windows only) -->
+<div class="step" data-os="windows">
+  <h3><span class="num">5.</span> Windows Terminal + PowerShell 7</h3>
+  <p class="why">PowerShell 7 is cross-platform, faster, and has features Windows PowerShell 5.1 doesn't. Windows Terminal is the modern tabbed terminal — runs <code>cmd</code>, PS 5.1, PS 7, and WSL side-by-side.</p>
+  <div class="label">Install</div>
+  <pre><code>winget install --id Microsoft.WindowsTerminal -e --source winget
+winget install --id Microsoft.PowerShell -e --source winget</code></pre>
+  <div class="label">Verify (open Windows Terminal → click the ⌄ dropdown → choose "PowerShell")</div>
+  <pre><code>$PSVersionTable.PSVersion</code></pre>
+  <p class="expected">Expected: <code>Major 7</code>. After installing PS 7, Windows Terminal usually picks it up automatically as a profile. If not, open Terminal settings (Ctrl+,) → Add a new profile → PowerShell.</p>
+</div>
+
+<!-- STEP 6/7: VS Code path -->
+<div class="step" data-editor="vscode" data-os="windows">
+  <h3><span class="num">6.</span> VS Code</h3>
+  <p class="why">Microsoft's editor with first-class Copilot + MCP integration.</p>
+  <div class="label">Install</div>
+  <pre><code>winget install --id Microsoft.VisualStudioCode -e --source winget</code></pre>
+  <div class="label">Verify <em>(restart your terminal so <code>code</code> is on PATH)</em></div>
+  <pre><code>code --version</code></pre>
+</div>
+
+<div class="step" data-editor="vscode" data-os="macos">
+  <h3><span class="num">6.</span> VS Code</h3>
+  <p class="why">Microsoft's editor with first-class Copilot + MCP integration.</p>
+  <div class="label">Install</div>
+  <pre><code>brew install --cask visual-studio-code</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>code --version</code></pre>
+  <p class="expected">If <code>code</code> isn't found, open VS Code → Cmd+Shift+P → "Shell Command: Install 'code' command in PATH".</p>
+</div>
+
+<div class="step" data-editor="vscode" data-os="linux">
+  <h3><span class="num">6.</span> VS Code</h3>
+  <p class="why">Microsoft's editor with first-class Copilot + MCP integration.</p>
+  <div class="label">Install (snap is simplest; .deb also works)</div>
+  <pre><code>sudo snap install code --classic</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>code --version</code></pre>
+</div>
+
+<div class="step" data-editor="vscode">
+  <h3><span class="num">7.</span> VS Code extensions for Copilot</h3>
+  <p class="why">GitHub Copilot in the editor + chat panel. Copilot Chat is the agent you'll spend most of your time with.</p>
+  <div class="label">Install</div>
+  <pre><code>code --install-extension GitHub.copilot
+code --install-extension GitHub.copilot-chat
+code --install-extension ms-vscode.powershell
+code --install-extension ms-python.python</code></pre>
+  <div class="label">Verify (list installed)</div>
+  <pre><code>code --list-extensions</code></pre>
+  <p class="expected">You should see all 4 IDs above. Open VS Code → bottom-right corner shows a Copilot icon when you're signed in.</p>
+</div>
+
+<div class="step" data-editor="vscode">
+  <h3><span class="num">8.</span> MCP server extensions <span class="badge">placeholder</span></h3>
+  <p class="why">MCP (Model Context Protocol) servers expose tools to Copilot Chat. The exact list for the hackathon is being finalized by organizers — this section will be updated when it lands.</p>
+  <div class="label">Placeholder install (Azure MCP)</div>
+  <pre><code>code --install-extension ms-azuretools.vscode-azure-mcp-server</code></pre>
+  <p class="expected">Check back here closer to the hackathon for the final list.</p>
+</div>
+
+<!-- Cursor path -->
+<div class="step" data-editor="cursor" data-os="windows">
+  <h3><span class="num">6.</span> Cursor</h3>
+  <p class="why">AI-native fork of VS Code. Has its own chat + agent built in.</p>
+  <div class="label">Install</div>
+  <pre><code>winget install --id Anysphere.Cursor -e --source winget</code></pre>
+  <div class="label">Verify</div>
+  <p class="expected">Launch Cursor from the Start menu. Sign in on first run.</p>
+</div>
+
+<div class="step" data-editor="cursor" data-os="macos">
+  <h3><span class="num">6.</span> Cursor</h3>
+  <p class="why">AI-native fork of VS Code.</p>
+  <div class="label">Install</div>
+  <pre><code>brew install --cask cursor</code></pre>
+  <div class="label">Verify</div>
+  <p class="expected">Launch Cursor from Applications. Sign in on first run.</p>
+</div>
+
+<div class="step" data-editor="cursor" data-os="linux">
+  <h3><span class="num">6.</span> Cursor</h3>
+  <p class="why">AI-native fork of VS Code.</p>
+  <div class="label">Install</div>
+  <p class="expected">Download the <code>.AppImage</code> from <a href="https://cursor.com/downloads" target="_blank" rel="noopener">cursor.com/downloads</a> and mark it executable: <code>chmod +x Cursor-*.AppImage</code>.</p>
+</div>
+
+<div class="step" data-editor="cursor">
+  <h3><span class="num">7.</span> Cursor + Copilot</h3>
+  <p class="why">Cursor has its own AI; you can still use <code>gh copilot</code> in your terminal alongside it (Step 9). For the hackathon, the GitHub Copilot extension also works in Cursor since it's a VS Code fork.</p>
+  <div class="label">Optional: add GitHub Copilot in Cursor</div>
+  <p class="expected">In Cursor: Cmd/Ctrl+Shift+X → search "GitHub Copilot" → Install → sign in with the GitHub account linked to Microsoft (see Step 10).</p>
+</div>
+
+<!-- STEP 9: gh-copilot -->
+<div class="step">
+  <h3><span class="num">9.</span> GitHub Copilot CLI</h3>
+  <p class="why">Ask Copilot for shell commands and explanations right in your terminal. Works on every OS, regardless of editor choice.</p>
+  <div class="label">Sign in to <code>gh</code> first</div>
+  <pre><code>gh auth login</code></pre>
+  <p class="expected">Pick <strong>GitHub.com</strong> → HTTPS → browser auth. Use the GitHub account that's linked to your Microsoft work account.</p>
+  <div class="label">Install the Copilot extension</div>
+  <pre><code>gh extension install github/gh-copilot</code></pre>
+  <div class="label">Verify</div>
+  <pre><code>gh copilot --version
+gh copilot suggest "list all files modified in the last week"</code></pre>
+</div>
+
+<!-- STEP 10: GH<->MS link validation -->
+<h2 id="link-validation">Validate your GitHub ↔ Microsoft account link</h2>
+<p class="lead">Linking your GitHub account to your Microsoft work account unlocks <strong>unlimited Copilot tokens</strong> during the hackathon. Verify it with these three commands.</p>
+
+<div class="callout warn">
+  <strong>If you skip this:</strong> you'll fall back to the free Copilot tier (limited completions/chat). Worth 60 seconds to confirm.
+</div>
+
+<div class="step">
+  <h3><span class="num">10.</span> Three-signal validation</h3>
+  <div class="label">1. Confirm you're authenticated</div>
+  <pre><code>gh auth status --hostname github.com</code></pre>
+  <p class="expected">Look for ✓ Logged in to github.com as <em>&lt;your-username&gt;</em>.</p>
+
+  <div class="label">2. Confirm the active username matches what you expect</div>
+  <pre><code>gh api user --jq .login</code></pre>
+  <p class="expected">Should print your GitHub username. If it shows someone else's, run <code>gh auth switch</code>.</p>
+
+  <div class="label">3. Confirm the Copilot entitlement</div>
+  <pre><code>gh copilot status</code></pre>
+  <p class="expected">Look for "You have access to GitHub Copilot." If it says you don't, follow the link to <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> and link your account to Microsoft.</p>
+</div>
+
+<!-- STEP 11: Agency -->
+<h2 id="agency">Agency Copilot (PM Mosaic on Agency)</h2>
+<p class="lead">Agency is Microsoft-internal. Install via their official one-liner — Defender allow-lists this specific <code>aka.ms</code> URL.</p>
+
+<div class="step" data-os="windows">
+  <h3><span class="num">11.</span> Install Agency Copilot</h3>
+  <p class="why">PM-specific Copilot with ADO / Kusto / IcM skills baked in.</p>
+  <div class="label">Run in PowerShell (any version)</div>
+  <pre><code>iex "&amp; { $(irm aka.ms/InstallTool.ps1) } agency"</code></pre>
+  <p class="expected">The Microsoft installer launches and walks you through sign-in. After install, launch <strong>Agency</strong> from the Start menu.</p>
+</div>
+
+<div class="step" data-os="macos">
+  <h3><span class="num">11.</span> Install Agency Copilot</h3>
+  <p class="why">PM-specific Copilot with ADO / Kusto / IcM skills baked in.</p>
+  <p class="expected">Agency's official installer targets Windows. Check the <a href="https://aka.ms/agency-quickstart" target="_blank" rel="noopener">Agency quick-start</a> for the latest cross-platform options.</p>
+</div>
+
+<div class="step" data-os="linux">
+  <h3><span class="num">11.</span> Install Agency Copilot</h3>
+  <p class="why">PM-specific Copilot with ADO / Kusto / IcM skills baked in.</p>
+  <p class="expected">Agency's official installer targets Windows. Check the <a href="https://aka.ms/agency-quickstart" target="_blank" rel="noopener">Agency quick-start</a> for the latest cross-platform options.</p>
+</div>
+
+<!-- Quick path -->
+<h2>Quick path — one paste-the-block command</h2>
+<p class="lead">For PMs who've read the above and just want all the package installs in one go. Run this <strong>after</strong> verifying your OS, then continue from Step 9 (sign-in / Copilot / Agency) manually.</p>
+
+<details data-os="windows">
+  <summary>Windows — paste into PowerShell or CMD</summary>
+  <pre><code>winget install --id Git.Git -e --accept-package-agreements --accept-source-agreements
+winget install --id OpenJS.NodeJS.LTS -e --accept-package-agreements --accept-source-agreements
+winget install --id Python.Python.3.12 -e --accept-package-agreements --accept-source-agreements
+winget install --id GitHub.cli -e --accept-package-agreements --accept-source-agreements
+winget install --id Microsoft.WindowsTerminal -e --accept-package-agreements --accept-source-agreements
+winget install --id Microsoft.PowerShell -e --accept-package-agreements --accept-source-agreements
+winget install --id Microsoft.VisualStudioCode -e --accept-package-agreements --accept-source-agreements</code></pre>
+  <p>Then restart your terminal so <code>code</code>, <code>gh</code>, and the rest are on PATH, and run:</p>
+  <pre><code>code --install-extension GitHub.copilot
+code --install-extension GitHub.copilot-chat
+code --install-extension ms-vscode.powershell
+code --install-extension ms-python.python
+gh auth login
+gh extension install github/gh-copilot</code></pre>
+</details>
+
+<details data-os="macos">
+  <summary>macOS — paste into Terminal</summary>
+  <pre><code>brew install git node@20 python@3.12 gh
+brew install --cask visual-studio-code
+code --install-extension GitHub.copilot
+code --install-extension GitHub.copilot-chat
+code --install-extension ms-vscode.powershell
+code --install-extension ms-python.python
+gh auth login
+gh extension install github/gh-copilot</code></pre>
+</details>
+
+<details data-os="linux">
+  <summary>Linux (Debian/Ubuntu) — paste into a terminal</summary>
+  <pre><code>sudo apt update
+sudo apt install -y git python3 python3-pip python3-venv
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt install -y nodejs
+# gh: see Step 4 (the keyring + repo dance)
+sudo snap install code --classic
+code --install-extension GitHub.copilot
+code --install-extension GitHub.copilot-chat
+code --install-extension ms-vscode.powershell
+code --install-extension ms-python.python
+gh auth login
+gh extension install github/gh-copilot</code></pre>
+</details>
+
+<h2>Troubleshooting</h2>
+<ul>
+  <li><strong><code>code</code> / <code>gh</code> not found after install</strong> — close and reopen your terminal so PATH refreshes.</li>
+  <li><strong>winget says "no applicable installer"</strong> — your Windows is too old; update Windows or grab App Installer from the <a href="https://aka.ms/getwinget" target="_blank" rel="noopener">Microsoft Store</a>.</li>
+  <li><strong><code>gh copilot status</code> says no access</strong> — your GitHub account isn't linked to your Microsoft work account. Visit <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a>.</li>
+  <li><strong>Defender flags an installer</strong> — open Defender → Protection history → submit a false positive if it's one of the commands above. <code>winget</code> and <code>brew</code> installs themselves should never trigger Defender.</li>
+</ul>
+
+<footer>
+  <p>Source: <a href="https://github.com/vamckMS/pm-hackathon-bootscript">vamckMS/pm-hackathon-bootscript</a> · Legacy bootstrap script (advanced, on unmanaged machines only): <a href="https://github.com/vamckMS/pm-hackathon-bootscript/tree/main/legacy">/legacy</a></p>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  const osRadios = document.querySelectorAll('input[name="os"]');
+  const editorRadios = document.querySelectorAll('input[name="editor"]');
+  const trackLabel = document.getElementById('track-label');
+  const osNames = { windows: 'Windows', macos: 'macOS', linux: 'Linux' };
+  const editorNames = { vscode: 'VS Code', cursor: 'Cursor', cli: 'CLI only (no IDE)' };
+
+  function selected(name) {
+    const r = document.querySelector('input[name="' + name + '"]:checked');
+    return r ? r.value : null;
+  }
+
+  function applyVisibility() {
+    const os = selected('os');
+    const editor = selected('editor');
+    trackLabel.textContent = 'Showing: ' + osNames[os] + ' · ' + editorNames[editor];
+
+    document.querySelectorAll('[data-os], [data-editor]').forEach(el => {
+      const targetOs = el.getAttribute('data-os');
+      const targetEd = el.getAttribute('data-editor');
+      const osOk = !targetOs || targetOs === os;
+      const edOk = !targetEd || targetEd === editor;
+      el.classList.toggle('hidden', !(osOk && edOk));
+    });
+  }
+
+  osRadios.forEach(r => r.addEventListener('change', applyVisibility));
+  editorRadios.forEach(r => r.addEventListener('change', applyVisibility));
+  applyVisibility();
+
+  document.querySelectorAll('pre').forEach(pre => {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.type = 'button';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', async () => {
+      const codeEl = pre.querySelector('code');
+      const text = codeEl ? codeEl.innerText : pre.innerText;
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = 'Copied!';
+        btn.classList.add('ok');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1500);
+      } catch (e) {
+        btn.textContent = 'Press Ctrl+C';
+      }
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>
