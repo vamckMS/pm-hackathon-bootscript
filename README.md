@@ -46,8 +46,30 @@ powershell -NoProfile -Command "iex (irm 'https://raw.githubusercontent.com/vamc
 
 ### With arguments
 
+Args go **inside the outer quotes, after the closing `}`** — same shape as
+Agency's `iex "& { $(irm aka.ms/InstallTool.ps1) } agency"`.
+
+**From PowerShell:**
+
 ```powershell
-iex "& { $(irm https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/bootstrap.ps1) } -WhatIf -GithubUsername alice-msft"
+# Dry run (detect-only, no changes)
+iex "& { $(irm https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/bootstrap.ps1) } -WhatIf"
+
+# Provide GH username + skip the link check
+iex "& { $(irm https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/bootstrap.ps1) } -GithubUsername alice-msft -SkipGhValidation"
+
+# Force-reinstall specific modules
+iex "& { $(irm https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/bootstrap.ps1) } -Force vscode-extensions,agency-copilot"
+```
+
+**From CMD** (the inner `$(...)` doesn't work in `cmd`, so capture-then-invoke):
+
+```cmd
+:: -WhatIf dry run
+powershell -NoProfile -Command "$s = irm 'https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/bootstrap.ps1'; & ([ScriptBlock]::Create($s)) -WhatIf"
+
+:: With GH username
+powershell -NoProfile -Command "$s = irm 'https://raw.githubusercontent.com/vamckMS/pm-hackathon-bootscript/main/bootstrap.ps1'; & ([ScriptBlock]::Create($s)) -GithubUsername alice-msft"
 ```
 
 ### Already have the repo locally?
