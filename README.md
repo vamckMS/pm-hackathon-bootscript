@@ -15,7 +15,7 @@ The guide covers:
 - Windows Terminal + PowerShell 7 (Windows)
 - GitHub Copilot in your editor + `gh copilot` in your terminal
 - GitHub ↔ Microsoft account-link validation (unlocks unlimited Copilot tokens)
-- Agency Copilot (PM Mosaic on Agency)
+- Agency
 
 Each step has a verify command and an expected output so you know it worked.
 

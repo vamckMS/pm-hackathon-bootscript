@@ -504,42 +504,42 @@ gh copilot --help</code></pre>
 </div>
 
 <!-- STEP 11: Agency -->
-<h2 id="agency">Agency Copilot (PM Mosaic on Agency)</h2>
-<p class="lead">Agency is Microsoft-internal. Install via their official one-liner — Defender allow-lists this specific <code>aka.ms</code> URL.</p>
+<h2 id="agency">Agency</h2>
+<p class="lead">Agency is the Microsoft-internal AI CLI from Azure Core Compute. Install via the official one-liner — Defender allow-lists this specific <code>aka.ms</code> URL.</p>
 
 <div class="step" data-os="windows">
-  <h3><span class="num">11.</span> Install Agency Copilot</h3>
-  <p class="why">PM-specific Copilot with ADO / Kusto / IcM skills baked in.</p>
+  <h3><span class="num">11.</span> Install Agency</h3>
+  <p class="why">Microsoft-internal AI CLI standard from Azure Core Compute.</p>
   <div class="label">Check (skip install if it prints a version)</div>
-  <pre><code>agency --version</code></pre>
+  <pre><code>agency copilot --version</code></pre>
   <div class="label">Install — run in PowerShell (any version)</div>
   <pre><code>iex "&amp; { $(irm aka.ms/InstallTool.ps1) } agency"</code></pre>
   <p class="expected">The Microsoft installer launches and walks you through sign-in. <strong>Close and reopen your terminal</strong> after install so <code>agency</code> lands on PATH.</p>
 </div>
 
 <div class="step" data-os="windows">
-  <h3><span class="num">12.</span> Validate Agency Copilot</h3>
+  <h3><span class="num">12.</span> Validate Agency</h3>
   <p class="why">Three quick signals that Agency is installed, on PATH, and signed in.</p>
   <div class="label">1. Binary on PATH</div>
-  <pre><code>agency --version</code></pre>
+  <pre><code>agency copilot --version</code></pre>
   <p class="expected">Prints a version string. If "command not found", reopen your terminal; if still missing, re-run the install in Step 11.</p>
-  <div class="label">2. Help works (CLI is loading skills)</div>
-  <pre><code>agency --help</code></pre>
+  <div class="label">2. Help works</div>
+  <pre><code>agency copilot --help</code></pre>
   <p class="expected">Should list top-level commands.</p>
   <div class="label">3. Launch an interactive session</div>
-  <pre><code>agency</code></pre>
-  <p class="expected">First run prompts you to sign in with your Microsoft work account in the browser. After sign-in completes, you land at an interactive prompt — type <code>/help</code> to confirm skills loaded, then <code>/exit</code>. You're done.</p>
+  <pre><code>agency copilot</code></pre>
+  <p class="expected">First run prompts you to sign in with your Microsoft work account in the browser. After sign-in completes, you land at an interactive prompt — type <code>/help</code> to confirm it's working, then <code>/exit</code>. You're done.</p>
 </div>
 
 <div class="step" data-os="macos">
-  <h3><span class="num">11.</span> Install Agency Copilot</h3>
-  <p class="why">PM-specific Copilot with ADO / Kusto / IcM skills baked in.</p>
+  <h3><span class="num">11.</span> Install Agency</h3>
+  <p class="why">Microsoft-internal AI CLI standard from Azure Core Compute.</p>
   <p class="expected">Agency's official installer targets Windows. Check the <a href="https://aka.ms/agency-quickstart" target="_blank" rel="noopener">Agency quick-start</a> for the latest cross-platform options.</p>
 </div>
 
 <div class="step" data-os="linux">
-  <h3><span class="num">11.</span> Install Agency Copilot</h3>
-  <p class="why">PM-specific Copilot with ADO / Kusto / IcM skills baked in.</p>
+  <h3><span class="num">11.</span> Install Agency</h3>
+  <p class="why">Microsoft-internal AI CLI standard from Azure Core Compute.</p>
   <p class="expected">Agency's official installer targets Windows. Check the <a href="https://aka.ms/agency-quickstart" target="_blank" rel="noopener">Agency quick-start</a> for the latest cross-platform options.</p>
 </div>
 
