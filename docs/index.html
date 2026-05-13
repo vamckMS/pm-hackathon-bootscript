@@ -462,32 +462,41 @@ gh copilot --help</code></pre>
 </div>
 
 <div class="step">
-  <h3><span class="num">10.</span> Four-signal validation</h3>
+  <h3><span class="num">10.</span> Multi-account-aware validation (5 signals)</h3>
 
-  <div class="label">1. Confirm you're authenticated</div>
-  <pre><code>gh auth status --hostname github.com</code></pre>
-  <p class="expected">Look for ✓ Logged in to github.com as <em>&lt;your-username&gt;</em>. Make a note of the <em>Token scopes</em> line — you'll use it in signal #3.</p>
+  <div class="callout danger">
+    <strong>⚠ Most common trap: multi-account confusion.</strong> Many Microsoft PMs have <strong>two GitHub accounts</strong> signed in — a personal one (e.g. <code>your-handle</code>) and a Microsoft-linked one (e.g. <code>youralias_microsoft</code>). The Copilot entitlement lives on the <strong>Microsoft-linked</strong> account only. The CLI uses the <em>active</em> account, so if the wrong one is active you'll get <code>Unexpected problem with GitHub Copilot in the CLI</code> even after refreshing scopes. Walk through the signals below in order — they'll catch this.
+  </div>
 
-  <div class="label">2. Confirm the active username matches what you expect</div>
-  <pre><code>gh api user --jq .login</code></pre>
-  <p class="expected">Should print your GitHub username. If it shows someone else's, run <code>gh auth switch</code>.</p>
+  <div class="label">1. List ALL accounts and find the Microsoft-linked one</div>
+  <pre><code>gh auth status</code></pre>
+  <p class="expected">You may see multiple entries. The one you want is usually named like <code>&lt;alias&gt;_microsoft</code> or whatever account you used at <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a>. Note its <em>Token scopes</em> line.</p>
 
-  <div class="label">3. Confirm your token has the <code>copilot</code> scope</div>
+  <div class="label">2. Make the Microsoft-linked account active</div>
+  <pre><code>gh auth switch -u &lt;your-ms-linked-username&gt;</code></pre>
+  <p class="expected">Replace <code>&lt;your-ms-linked-username&gt;</code> with the username from step 1. Verify with <code>gh api user --jq .login</code> — it should print that username.</p>
+
+  <div class="label">3. Confirm the active account has Copilot entitlement (no scope needed)</div>
+  <pre><code>gh api graphql -f query="{viewer{login copilotEndpoints{api}}}"</code></pre>
+  <p class="expected">Should print a JSON blob with a non-null <code>api</code> URL like <code>https://api.enterprise.githubcopilot.com</code>. If <code>copilotEndpoints</code> is <code>null</code>, this account doesn't have access — go back to step 2 and pick a different account, or visit <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> to link this account to Microsoft.</p>
+
+  <div class="label">4. Grant the <code>copilot</code> token scope to the active account</div>
   <pre><code>gh auth refresh -h github.com -s copilot</code></pre>
-  <p class="expected">This re-opens the browser auth flow and grants the Copilot scope to your token. <strong>Run this even if you think you already have it</strong> — it's idempotent and is the #1 fix for "Unexpected problem with GitHub Copilot in the CLI."</p>
+  <p class="expected">Re-opens the browser auth flow. <strong>The one-time code goes to <a href="https://github.com/login/device" target="_blank" rel="noopener">github.com/login/device</a></strong> — if no browser pops up, open that URL manually. <strong>Make sure you sign in there as the Microsoft-linked account</strong>, not your personal one. After authorizing, run <code>gh auth status</code> again — the active account's "Token scopes" line should now include <code>'copilot'</code>.</p>
 
-  <div class="label">4. Confirm the Copilot entitlement (functional check)</div>
+  <div class="label">5. Functional check — Copilot should respond now</div>
   <pre><code>gh copilot explain "git status"</code></pre>
-  <p class="expected">If you get a plain-English explanation, your entitlement is working — you're done. (First run prompts you to opt into usage analytics — answer once.)</p>
+  <p class="expected">If you get a plain-English explanation, you're done. (First run prompts you to opt into usage analytics — answer once.)</p>
 
   <div class="callout warn">
-    <strong>If you see <code>✗ Error: Unexpected problem with GitHub Copilot in the CLI</code>, try these in order:</strong>
+    <strong>Still getting <code>✗ Error: Unexpected problem with GitHub Copilot in the CLI</code>?</strong>
     <ol>
-      <li><strong>Refresh the token scope</strong> (signal #3 above): <code>gh auth refresh -h github.com -s copilot</code>. Then retry <code>gh copilot explain</code>.</li>
-      <li><strong>Confirm the GH ↔ Microsoft link.</strong> Open <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> in a browser. You should see "GitHub Copilot is active for your account" with <strong>Microsoft</strong> listed as the source. If not, click "Get access through your organization" and sign in with your Microsoft work email.</li>
-      <li><strong>Wrong active account?</strong> Run <code>gh auth status</code>. If it shows a personal account instead of the one linked to Microsoft, run <code>gh auth switch</code> (or <code>gh auth logout</code> + <code>gh auth login</code> with the right account).</li>
-      <li><strong>Corp proxy / firewall.</strong> Check that <code>api.githubcopilot.com</code> is reachable: <code>curl -I https://api.githubcopilot.com</code> should return an HTTP response (any status, including 401, means the network path is open).</li>
-      <li><strong>Still stuck.</strong> The <a href="https://docs.github.com/copilot/troubleshooting-github-copilot/troubleshooting-issues-with-github-copilot-in-the-cli" target="_blank" rel="noopener">official troubleshooting page</a> has more options, including how to file a support ticket.</li>
+      <li><strong>Confirm the right account is active</strong>: <code>gh api user --jq .login</code> should print your MS-linked username, not your personal one.</li>
+      <li><strong>Confirm the scope landed</strong>: re-run <code>gh auth status</code> and check the Token scopes line for the active account — it must include <code>'copilot'</code>. If it doesn't, the device-flow authorization didn't complete; re-run signal #4 and watch the browser tab.</li>
+      <li><strong>Confirm entitlement</strong>: re-run signal #3 — <code>copilotEndpoints.api</code> must not be null.</li>
+      <li><strong>Visit the entitlement page</strong> at <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> in a browser signed in as the MS-linked account. You should see "GitHub Copilot is active" with <strong>Microsoft</strong> as the source.</li>
+      <li><strong>Corp proxy / firewall.</strong> Check that the Copilot API is reachable: <code>curl -I https://api.enterprise.githubcopilot.com</code> (or <code>api.githubcopilot.com</code> for non-enterprise). Any HTTP status — including 401 — means the network path is open.</li>
+      <li><strong>Still stuck.</strong> The <a href="https://docs.github.com/copilot/troubleshooting-github-copilot/troubleshooting-issues-with-github-copilot-in-the-cli" target="_blank" rel="noopener">official troubleshooting page</a> has more options.</li>
     </ol>
   </div>
 
