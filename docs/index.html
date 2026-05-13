@@ -439,46 +439,59 @@ code --install-extension ms-python.python</code></pre>
   <p class="why">Ask Copilot for shell commands and explanations right in your terminal. Works on every OS, regardless of editor choice.</p>
   <div class="label">Sign in to <code>gh</code> first</div>
   <pre><code>gh auth login</code></pre>
-  <p class="expected">Pick <strong>GitHub.com</strong> → HTTPS → browser auth. Use the GitHub account that's linked to your Microsoft work account.</p>
+  <p class="expected">Pick <strong>GitHub.com</strong> → HTTPS → browser auth. <strong>When prompted for scopes, include <code>copilot</code></strong> (or pick "all scopes"). Use the GitHub account that's linked to your Microsoft work account.</p>
+
   <div class="label">Check (skip install if it prints a version)</div>
   <pre><code>gh copilot --version</code></pre>
-  <div class="label">Install the Copilot extension</div>
+
+  <div class="label">Install the Copilot extension if missing</div>
   <pre><code>gh extension install github/gh-copilot</code></pre>
-  <div class="label">Verify it works</div>
-  <pre><code>gh copilot --help
-gh copilot explain "git status"</code></pre>
-  <p class="expected">First run of <code>explain</code> or <code>suggest</code> prompts you to opt into usage analytics (Y/N) — answer once and it remembers.</p>
-  <div class="callout warn">
-    <strong>Common errors and fixes:</strong>
-    <ul>
-      <li><code>Error: unknown command "status" for "copilot"</code> — <code>gh copilot status</code> isn't a real subcommand. Use <code>gh copilot --help</code> to see the valid ones (<code>suggest</code>, <code>explain</code>, <code>alias</code>, <code>config</code>).</li>
-      <li><code>Error: Unexpected problem with GitHub Copilot in the CLI</code> on <code>gh copilot suggest "..."</code> — usually means your GitHub account doesn't have a Copilot license yet. Complete <strong>Step 10</strong> below to validate the GitHub↔Microsoft link, then retry. Also try <code>gh auth refresh -h github.com -s copilot</code> to refresh your token scopes.</li>
-    </ul>
-  </div>
+
+  <div class="label">Verify the CLI is installed (offline checks — no API call)</div>
+  <pre><code>gh copilot --version
+gh copilot --help</code></pre>
+  <p class="expected">If both print output, the extension is correctly installed. <strong>Don't try <code>gh copilot explain</code> or <code>suggest</code> yet</strong> — those hit the Copilot API and will fail until your account is fully linked and your token has the <code>copilot</code> scope. We'll verify the API in <a href="#link-validation">Step 10</a>.</p>
 </div>
 
 <!-- STEP 10: GH<->MS link validation -->
 <h2 id="link-validation">Validate your GitHub ↔ Microsoft account link</h2>
-<p class="lead">Linking your GitHub account to your Microsoft work account unlocks <strong>unlimited Copilot tokens</strong> during the hackathon. Verify it with these three commands.</p>
+<p class="lead">Linking your GitHub account to your Microsoft work account unlocks <strong>unlimited Copilot tokens</strong> during the hackathon. Validate the link with the four signals below. <strong>This is also where you confirm <code>gh copilot explain</code> / <code>suggest</code> actually work</strong> — if you saw "Unexpected problem with GitHub Copilot in the CLI" earlier, this section fixes it.</p>
 
 <div class="callout warn">
   <strong>If you skip this:</strong> you'll fall back to the free Copilot tier (limited completions/chat). Worth 60 seconds to confirm.
 </div>
 
 <div class="step">
-  <h3><span class="num">10.</span> Three-signal validation</h3>
+  <h3><span class="num">10.</span> Four-signal validation</h3>
+
   <div class="label">1. Confirm you're authenticated</div>
   <pre><code>gh auth status --hostname github.com</code></pre>
-  <p class="expected">Look for ✓ Logged in to github.com as <em>&lt;your-username&gt;</em>.</p>
+  <p class="expected">Look for ✓ Logged in to github.com as <em>&lt;your-username&gt;</em>. Make a note of the <em>Token scopes</em> line — you'll use it in signal #3.</p>
 
   <div class="label">2. Confirm the active username matches what you expect</div>
   <pre><code>gh api user --jq .login</code></pre>
   <p class="expected">Should print your GitHub username. If it shows someone else's, run <code>gh auth switch</code>.</p>
 
-  <div class="label">3. Confirm the Copilot entitlement (functional check)</div>
+  <div class="label">3. Confirm your token has the <code>copilot</code> scope</div>
+  <pre><code>gh auth refresh -h github.com -s copilot</code></pre>
+  <p class="expected">This re-opens the browser auth flow and grants the Copilot scope to your token. <strong>Run this even if you think you already have it</strong> — it's idempotent and is the #1 fix for "Unexpected problem with GitHub Copilot in the CLI."</p>
+
+  <div class="label">4. Confirm the Copilot entitlement (functional check)</div>
   <pre><code>gh copilot explain "git status"</code></pre>
-  <p class="expected">If you get a plain-English explanation, your entitlement is working — you're done. <br>If you see <em>"Unexpected problem with GitHub Copilot in the CLI"</em>, your account isn't linked yet. Open <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> and complete the link to your Microsoft work email. Then run <code>gh auth refresh -h github.com -s copilot</code> and retry.</p>
-  <p class="expected"><em>Heads-up: <code>gh copilot status</code> is not a real subcommand — that error message is harmless, just use <code>explain</code> as the functional check.</em></p>
+  <p class="expected">If you get a plain-English explanation, your entitlement is working — you're done. (First run prompts you to opt into usage analytics — answer once.)</p>
+
+  <div class="callout warn">
+    <strong>If you see <code>✗ Error: Unexpected problem with GitHub Copilot in the CLI</code>, try these in order:</strong>
+    <ol>
+      <li><strong>Refresh the token scope</strong> (signal #3 above): <code>gh auth refresh -h github.com -s copilot</code>. Then retry <code>gh copilot explain</code>.</li>
+      <li><strong>Confirm the GH ↔ Microsoft link.</strong> Open <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> in a browser. You should see "GitHub Copilot is active for your account" with <strong>Microsoft</strong> listed as the source. If not, click "Get access through your organization" and sign in with your Microsoft work email.</li>
+      <li><strong>Wrong active account?</strong> Run <code>gh auth status</code>. If it shows a personal account instead of the one linked to Microsoft, run <code>gh auth switch</code> (or <code>gh auth logout</code> + <code>gh auth login</code> with the right account).</li>
+      <li><strong>Corp proxy / firewall.</strong> Check that <code>api.githubcopilot.com</code> is reachable: <code>curl -I https://api.githubcopilot.com</code> should return an HTTP response (any status, including 401, means the network path is open).</li>
+      <li><strong>Still stuck.</strong> The <a href="https://docs.github.com/copilot/troubleshooting-github-copilot/troubleshooting-issues-with-github-copilot-in-the-cli" target="_blank" rel="noopener">official troubleshooting page</a> has more options, including how to file a support ticket.</li>
+    </ol>
+  </div>
+
+  <p class="expected"><em>Side note: <code>gh copilot status</code> is not a real subcommand — only <code>suggest</code>, <code>explain</code>, <code>alias</code>, and <code>config</code> exist. See <code>gh copilot --help</code>.</em></p>
 </div>
 
 <!-- STEP 11: Agency -->
