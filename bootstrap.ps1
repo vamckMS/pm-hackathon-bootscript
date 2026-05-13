@@ -107,23 +107,15 @@ $ErrorActionPreference = 'Stop'
 Set-ExecutionPolicy Bypass -Scope Process -Force -ErrorAction SilentlyContinue | Out-Null
 
 # ---------- Module loader (dual mode) ----------
-# Loads scripts as TEXT and dot-sources them so names land at SCRIPT scope.
-# Wrapping the dot-source in a regular `function` would scope names to that
-# function — which is why we use a scriptblock invoked via `. $LoadOne <path>`
-# below. Either way, no script FILE is executed (we evaluate strings via
-# [ScriptBlock]::Create), so GPO-enforced ExecutionPolicy cannot block it.
-$script:LoadOne = {
-    param([Parameter(Mandatory)][string]$RelPath)
-    if ($script:IsRemote) {
-        $url = ($script:BaseUrl + '/' + $RelPath).Replace('\','/')
-        Write-Host "[load] $url" -ForegroundColor DarkGray
-        $content = (Invoke-WebRequest -Uri $url -UseBasicParsing).Content
-    } else {
-        $full = Join-Path $script:Here $RelPath
-        $content = Get-Content -Raw -LiteralPath $full
-    }
-    . ([ScriptBlock]::Create($content))
-}
+# Loads scripts as TEXT and dot-sources them at the script scope so the modules'
+# functions (Initialize-Bootstrap, Invoke-*Step, etc.) are visible to the rest
+# of this script. Wrapping the dot-source in a parameterized scriptblock with
+# [Parameter(Mandatory)] makes it act like an advanced function — names get
+# trapped in that scope. Inlining the foreach loop avoids that pitfall: the
+# loop body runs in the surrounding script scope, so the dot-source lands
+# names exactly where we need them. Either way, no script FILE is executed
+# (we evaluate strings via [ScriptBlock]::Create), so GPO-enforced
+# ExecutionPolicy cannot block it.
 
 # Clear MOTW on local files so any subsequent file-based ops are safe.
 if (-not $script:IsRemote) {
@@ -133,15 +125,29 @@ if (-not $script:IsRemote) {
     } catch { }
 }
 
-. $script:LoadOne 'modules/Common.psm1'
-. $script:LoadOne 'modules/Install-Prereqs.ps1'
-. $script:LoadOne 'modules/Install-CoreTools.ps1'
-. $script:LoadOne 'modules/Install-Terminal.ps1'
-. $script:LoadOne 'modules/Install-VSCode.ps1'
-. $script:LoadOne 'modules/Install-GhCli.ps1'
-. $script:LoadOne 'modules/Test-GithubLink.ps1'
-. $script:LoadOne 'modules/Install-AgencyCopilot.ps1'
-. $script:LoadOne 'modules/Show-Summary.ps1'
+$script:Modules = @(
+    'modules/Common.psm1',
+    'modules/Install-Prereqs.ps1',
+    'modules/Install-CoreTools.ps1',
+    'modules/Install-Terminal.ps1',
+    'modules/Install-VSCode.ps1',
+    'modules/Install-GhCli.ps1',
+    'modules/Test-GithubLink.ps1',
+    'modules/Install-AgencyCopilot.ps1',
+    'modules/Show-Summary.ps1'
+)
+
+foreach ($rel in $script:Modules) {
+    if ($script:IsRemote) {
+        $url = ($script:BaseUrl + '/' + $rel).Replace('\','/')
+        Write-Host "[load] $url" -ForegroundColor DarkGray
+        $content = (Invoke-WebRequest -Uri $url -UseBasicParsing).Content
+    } else {
+        $full = Join-Path $script:Here $rel
+        $content = Get-Content -Raw -LiteralPath $full
+    }
+    . ([ScriptBlock]::Create($content))
+}
 
 # Resolve the extensions config path (Install-VSCode wants a file path).
 if ($script:IsRemote) {
