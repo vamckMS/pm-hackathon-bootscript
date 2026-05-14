@@ -10,10 +10,10 @@ hackathon — pick your OS + editor, paste the commands, verify each step.
 The guide covers:
 
 - **Windows / macOS / Linux** package-manager commands (`winget` / `brew` / `apt`)
-- **VS Code / Cursor / CLI-only** editor paths
+- **VS Code / CLI-only** editor paths (other editors — PRs welcome)
 - Git, Node LTS, Python 3, GitHub CLI
 - Windows Terminal + PowerShell 7 (Windows)
-- GitHub Copilot in your editor + the standalone `copilot` CLI in your terminal (plus optional `gh copilot` extension)
+- GitHub Copilot in your editor + the standalone `copilot` CLI in your terminal
 - GitHub ↔ Microsoft account-link validation (unlocks unlimited Copilot tokens)
 - Agency
 

@@ -128,9 +128,9 @@
   <h3>2. Editor / agent preference?</h3>
   <div class="options" id="editor-options">
     <label><input type="radio" name="editor" value="vscode" checked><span>VS Code <span class="badge">+ Copilot + MCP</span></span></label>
-    <label><input type="radio" name="editor" value="cursor"><span>Cursor <span class="badge">AI IDE</span></span></label>
-    <label><input type="radio" name="editor" value="cli"><span>CLI only <span class="badge">gh copilot</span></span></label>
+    <label><input type="radio" name="editor" value="cli"><span>CLI only <span class="badge">standalone copilot</span></span></label>
   </div>
+  <p class="lead" style="margin-top:.5rem;font-size:.9rem;color:var(--muted);"><em>Other editors? PRs welcome — this guide currently covers the Microsoft-approved path (VS Code). Add a section for your editor by opening a PR on <a href="https://github.com/vamckMS/pm-hackathon-bootscript">the repo</a>.</em></p>
 </div>
 
 <p class="lead" id="track-label"></p>
@@ -148,18 +148,16 @@
   <div class="label" data-os="windows">Windows</div>
   <ul data-os="windows">
     <li data-editor="vscode"><strong>In VS Code:</strong> press <code>Ctrl</code> + <code>`</code> (backtick, top-left of your keyboard) to open the integrated terminal. Or menu: <em>Terminal → New Terminal</em>.</li>
-    <li data-editor="cursor"><strong>In Cursor:</strong> press <code>Ctrl</code> + <code>`</code> (backtick) — Cursor is a VS Code fork, so the same shortcut opens the integrated terminal.</li>
-    <li data-editor="vscode cursor"><em>Don't have your editor installed yet? Use one of the standalone options below — you'll install the editor later in this guide.</em></li>
+    <li data-editor="vscode"><em>Don't have VS Code installed yet? Use one of the standalone options below — you'll install VS Code later in this guide.</em></li>
     <li><strong>Standalone:</strong> Start menu → "Windows Terminal" (or "PowerShell" / "Command Prompt" on older Windows).</li>
-    <li>If you don't have Windows Terminal yet, that's fine — install it in Step 5 below. <code>cmd</code> or PowerShell 5.1 (built-in) work for every command in this guide.</li>
+    <li>If you don't have Windows Terminal yet, that's fine — install it in Step 5 below. Note Step 5's check command needs <strong>PowerShell</strong> (not <code>cmd</code>); every other command in this guide works in either.</li>
   </ul>
 
   <!-- macOS -->
   <div class="label" data-os="macos">macOS</div>
   <ul data-os="macos">
     <li data-editor="vscode"><strong>In VS Code:</strong> press <code>Ctrl</code> + <code>`</code> (backtick) to open the integrated terminal. Or menu: <em>Terminal → New Terminal</em>.</li>
-    <li data-editor="cursor"><strong>In Cursor:</strong> press <code>Ctrl</code> + <code>`</code> (backtick) — Cursor is a VS Code fork, so the same shortcut opens the integrated terminal.</li>
-    <li data-editor="vscode cursor"><em>Don't have your editor installed yet? Use Spotlight below — you'll install the editor later in this guide.</em></li>
+    <li data-editor="vscode"><em>Don't have VS Code installed yet? Use Spotlight below — you'll install VS Code later in this guide.</em></li>
     <li><strong>Standalone:</strong> Spotlight (<code>Cmd</code> + <code>Space</code>) → type "Terminal" → <code>Enter</code>. Or open <em>Applications → Utilities → Terminal</em>.</li>
   </ul>
 
@@ -167,12 +165,11 @@
   <div class="label" data-os="linux">Linux</div>
   <ul data-os="linux">
     <li data-editor="vscode"><strong>In VS Code:</strong> press <code>Ctrl</code> + <code>`</code> (backtick) to open the integrated terminal. Or menu: <em>Terminal → New Terminal</em>.</li>
-    <li data-editor="cursor"><strong>In Cursor:</strong> press <code>Ctrl</code> + <code>`</code> (backtick) — Cursor is a VS Code fork, so the same shortcut opens the integrated terminal.</li>
-    <li data-editor="vscode cursor"><em>Don't have your editor installed yet? Use the standalone option below — you'll install the editor later in this guide.</em></li>
+    <li data-editor="vscode"><em>Don't have VS Code installed yet? Use the standalone option below — you'll install VS Code later in this guide.</em></li>
     <li><strong>Standalone:</strong> <code>Ctrl</code> + <code>Alt</code> + <code>T</code> on most distros, or search for "Terminal" in your app launcher.</li>
   </ul>
 
-  <p class="expected" data-editor="vscode cursor">Tip: the integrated terminal inherits your current folder as the working directory — handy once you start cloning repos.</p>
+  <p class="expected" data-editor="vscode">Tip: the integrated terminal inherits your current folder as the working directory — handy once you start cloning repos.</p>
   <p class="expected" data-editor="cli">Since you picked the CLI-only path, every command in this guide runs in your standalone terminal — no editor needed.</p>
 </div>
 
@@ -192,7 +189,10 @@
   <pre><code>brew --version</code></pre>
   <div class="label">Install if missing (run in Terminal)</div>
   <pre><code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
-  <p class="expected">Expected: <code>Homebrew 4.x.x</code></p>
+  <p class="expected">Expected: <code>Homebrew 4.x.x</code>. <strong>On Apple Silicon (M-series) Macs</strong>, the installer prints two follow-up commands you must run before <code>brew</code> is on your PATH — they look like:</p>
+  <pre><code>echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' &gt;&gt; ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"</code></pre>
+  <p class="expected">Run those, then re-run <code>brew --version</code> to confirm.</p>
 </div>
 
 <div class="step" data-os="linux">
@@ -210,9 +210,13 @@
   <pre><code>git --version</code></pre>
   <div class="label">Install if missing</div>
   <pre><code>winget install --id Git.Git -e --source winget</code></pre>
-  <div class="label">Verify <em>(restart your terminal first so PATH picks it up)</em></div>
+  <div class="label">After install — close and reopen your terminal, then re-run:</div>
   <pre><code>git --version</code></pre>
   <p class="expected">Expected: <code>git version 2.x.x.windows.x</code></p>
+  <div class="label">Set your Git identity (required for commits)</div>
+  <pre><code>git config --global user.name "Your Name"
+git config --global user.email "youralias@microsoft.com"</code></pre>
+  <p class="expected">Use the same email tied to your Microsoft-linked GitHub account. Verify with <code>git config --global --list | findstr user</code>.</p>
 </div>
 
 <div class="step" data-os="macos">
@@ -222,6 +226,10 @@
   <pre><code>git --version</code></pre>
   <div class="label">Install if missing</div>
   <pre><code>brew install git</code></pre>
+  <div class="label">Set your Git identity (required for commits)</div>
+  <pre><code>git config --global user.name "Your Name"
+git config --global user.email "youralias@microsoft.com"</code></pre>
+  <p class="expected">Use the same email tied to your Microsoft-linked GitHub account.</p>
 </div>
 
 <div class="step" data-os="linux">
@@ -231,18 +239,22 @@
   <pre><code>git --version</code></pre>
   <div class="label">Install if missing</div>
   <pre><code>sudo apt install -y git</code></pre>
+  <div class="label">Set your Git identity (required for commits)</div>
+  <pre><code>git config --global user.name "Your Name"
+git config --global user.email "youralias@microsoft.com"</code></pre>
+  <p class="expected">Use the same email tied to your Microsoft-linked GitHub account.</p>
 </div>
 
 <!-- STEP 2: Node -->
 <div class="step" data-os="windows">
   <h3><span class="num">2.</span> Node.js LTS</h3>
-  <p class="why">Required for many MCP servers, build tools, and modern AI tooling. <strong>The Node.js installer includes <code>npm</code></strong> — no separate install needed.</p>
+  <p class="why">Required for the standalone <code>copilot</code> CLI (Step 9) plus many MCP servers and build tools. <strong>The Node.js installer includes <code>npm</code></strong> — no separate install needed.</p>
   <div class="label">Check (skip install if a version prints)</div>
   <pre><code>node --version
 npm --version</code></pre>
   <div class="label">Install if missing</div>
   <pre><code>winget install --id OpenJS.NodeJS.LTS -e --source winget</code></pre>
-  <p class="expected">Expected: <code>v20.x.x</code> or later, npm <code>10.x.x</code>+</p>
+  <p class="expected">After install, <strong>close and reopen your terminal</strong> so <code>node</code>/<code>npm</code> land on PATH, then re-run the check. Expected: <code>v20.x.x</code> or later, npm <code>10.x.x</code>+.</p>
 </div>
 
 <div class="step" data-os="macos">
@@ -276,7 +288,7 @@ sudo apt install -y nodejs</code></pre>
 pip --version</code></pre>
   <div class="label">Install if missing</div>
   <pre><code>winget install --id Python.Python.3.12 -e --source winget</code></pre>
-  <p class="expected">Expected: <code>Python 3.12.x</code></p>
+  <p class="expected">After install, <strong>close and reopen your terminal</strong>, then re-run the check. Expected: <code>Python 3.12.x</code>.</p>
 </div>
 
 <div class="step" data-os="macos">
@@ -301,26 +313,33 @@ pip3 --version</code></pre>
 
 <!-- STEP 4: GitHub CLI -->
 <div class="step" data-os="windows">
-  <h3><span class="num">4.</span> GitHub CLI (<code>gh</code>)</h3>
-  <p class="why">Authenticate with GitHub, install <code>gh copilot</code>, and validate your Microsoft↔GitHub link.</p>
+  <h3><span class="num">4.</span> GitHub CLI (<code>gh</code>) <span class="badge">optional, useful</span></h3>
+  <p class="why">Cloning repos, opening PRs, browsing issues from the terminal. Not required for Copilot — the standalone <code>copilot</code> CLI (Step 9) handles its own auth — but most hackathon workflows are easier with <code>gh</code> installed.</p>
   <div class="label">Check (skip install if a version prints)</div>
   <pre><code>gh --version</code></pre>
   <div class="label">Install if missing</div>
   <pre><code>winget install --id GitHub.cli -e --source winget</code></pre>
+  <p class="expected">After install, <strong>close and reopen your terminal</strong>. Then sign in (browser flow) with the GitHub account you'll use for the hackathon — your Microsoft-linked account, typically <code>&lt;alias&gt;_microsoft</code>:</p>
+  <pre><code>gh auth login
+gh auth status</code></pre>
+  <p class="expected"><code>gh auth status</code> should print "Logged in to github.com as &lt;your-username&gt;".</p>
 </div>
 
 <div class="step" data-os="macos">
-  <h3><span class="num">4.</span> GitHub CLI (<code>gh</code>)</h3>
-  <p class="why">Authenticate, install <code>gh copilot</code>, validate Microsoft↔GitHub link.</p>
+  <h3><span class="num">4.</span> GitHub CLI (<code>gh</code>) <span class="badge">optional, useful</span></h3>
+  <p class="why">Cloning repos, opening PRs, browsing issues from the terminal. Not required for Copilot.</p>
   <div class="label">Check (skip install if a version prints)</div>
   <pre><code>gh --version</code></pre>
   <div class="label">Install if missing</div>
   <pre><code>brew install gh</code></pre>
+  <p class="expected">Then sign in:</p>
+  <pre><code>gh auth login
+gh auth status</code></pre>
 </div>
 
 <div class="step" data-os="linux">
-  <h3><span class="num">4.</span> GitHub CLI (<code>gh</code>)</h3>
-  <p class="why">Authenticate, install <code>gh copilot</code>, validate Microsoft↔GitHub link.</p>
+  <h3><span class="num">4.</span> GitHub CLI (<code>gh</code>) <span class="badge">optional, useful</span></h3>
+  <p class="why">Cloning repos, opening PRs, browsing issues from the terminal. Not required for Copilot.</p>
   <div class="label">Check (skip install if a version prints)</div>
   <pre><code>gh --version</code></pre>
   <div class="label">Install if missing</div>
@@ -331,18 +350,21 @@ pip3 --version</code></pre>
   &amp;&amp; echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list &gt; /dev/null \
   &amp;&amp; sudo apt update \
   &amp;&amp; sudo apt install gh -y</code></pre>
+  <p class="expected">Then sign in:</p>
+  <pre><code>gh auth login
+gh auth status</code></pre>
 </div>
 
 <!-- STEP 5: Terminal (Windows only) -->
 <div class="step" data-os="windows">
   <h3><span class="num">5.</span> Windows Terminal + PowerShell 7</h3>
   <p class="why">PowerShell 7 is cross-platform, faster, and has features Windows PowerShell 5.1 doesn't. Windows Terminal is the modern tabbed terminal — runs <code>cmd</code>, PS 5.1, PS 7, and WSL side-by-side.</p>
-  <div class="label">Check (skip install if a version prints)</div>
-  <pre><code>$PSVersionTable.PSVersion</code></pre>
+  <div class="label">Check (skip install if a version prints — works in any shell)</div>
+  <pre><code>pwsh --version</code></pre>
   <div class="label">Install if missing</div>
   <pre><code>winget install --id Microsoft.WindowsTerminal -e --source winget
 winget install --id Microsoft.PowerShell -e --source winget</code></pre>
-  <p class="expected">Expected: <code>Major 7</code>. After installing PS 7, Windows Terminal usually picks it up automatically as a profile. If not, open Terminal settings (Ctrl+,) → Add a new profile → PowerShell.</p>
+  <p class="expected">Expected: <code>PowerShell 7.x.x</code>. After installing, <strong>close and reopen your terminal</strong>. Windows Terminal usually picks up PS 7 automatically as a profile; if not, open Terminal settings (Ctrl+,) → Add a new profile → PowerShell.</p>
 </div>
 
 <!-- STEP 6/7: VS Code path -->
@@ -378,59 +400,21 @@ winget install --id Microsoft.PowerShell -e --source winget</code></pre>
 <div class="step" data-editor="vscode">
   <h3><span class="num">7.</span> VS Code extensions for Copilot</h3>
   <p class="why">GitHub Copilot in the editor + chat panel. Copilot Chat is the agent you'll spend most of your time with.</p>
-  <div class="label">Check (skip install if a version prints)</div>
+  <div class="label">Check — list currently-installed extensions</div>
   <pre><code>code --list-extensions</code></pre>
-  <div class="label">Install if missing</div>
+  <p class="expected">Look for these four IDs in the output. If any are missing, run the install command below; <code>code --install-extension</code> is idempotent so it's safe to re-run.</p>
+  <div class="label">Install (run all four — safe to re-run)</div>
   <pre><code>code --install-extension GitHub.copilot
 code --install-extension GitHub.copilot-chat
 code --install-extension ms-vscode.powershell
 code --install-extension ms-python.python</code></pre>
-  <p class="expected">You should see all 4 IDs above. Open VS Code → bottom-right corner shows a Copilot icon when you're signed in.</p>
+  <p class="expected">Open VS Code → bottom-right corner shows a Copilot icon when you're signed in. If sign-in is missing, click the icon → "Sign in to GitHub" and use your Microsoft-linked account.</p>
 </div>
 
 <div class="step" data-editor="vscode">
   <h3><span class="num">8.</span> MCP server extensions <span class="badge">placeholder</span></h3>
-  <p class="why">MCP (Model Context Protocol) servers expose tools to Copilot Chat. The exact list for the hackathon is being finalized by organizers — this section will be updated when it lands.</p>
-  <div class="label">Placeholder install (Azure MCP)</div>
-  <pre><code>code --install-extension ms-azuretools.vscode-azure-mcp-server</code></pre>
-  <p class="expected">Check back here closer to the hackathon for the final list.</p>
-</div>
-
-<!-- Cursor path -->
-<div class="step" data-editor="cursor" data-os="windows">
-  <h3><span class="num">6.</span> Cursor</h3>
-  <p class="why">AI-native fork of VS Code. Has its own chat + agent built in.</p>
-  <div class="label">Check (skip install if a version prints)</div>
-  <pre><code>cursor --version</code></pre>
-  <div class="label">Install if missing</div>
-  <pre><code>winget install --id Anysphere.Cursor -e --source winget</code></pre>
-  <p class="expected">Launch Cursor from the Start menu. Sign in on first run.</p>
-</div>
-
-<div class="step" data-editor="cursor" data-os="macos">
-  <h3><span class="num">6.</span> Cursor</h3>
-  <p class="why">AI-native fork of VS Code.</p>
-  <div class="label">Check (skip install if a version prints)</div>
-  <pre><code>cursor --version</code></pre>
-  <div class="label">Install if missing</div>
-  <pre><code>brew install --cask cursor</code></pre>
-  <p class="expected">Launch Cursor from Applications. Sign in on first run.</p>
-</div>
-
-<div class="step" data-editor="cursor" data-os="linux">
-  <h3><span class="num">6.</span> Cursor</h3>
-  <p class="why">AI-native fork of VS Code.</p>
-  <div class="label">Check (skip install if a version prints)</div>
-  <pre><code>cursor --version</code></pre>
-  <div class="label">Install if missing</div>
-  <p class="expected">Download the <code>.AppImage</code> from <a href="https://cursor.com/downloads" target="_blank" rel="noopener">cursor.com/downloads</a> and mark it executable: <code>chmod +x Cursor-*.AppImage</code>.</p>
-</div>
-
-<div class="step" data-editor="cursor">
-  <h3><span class="num">7.</span> Cursor + Copilot</h3>
-  <p class="why">Cursor has its own AI; you can still use the standalone <code>copilot</code> CLI in your terminal alongside it (Step 9). For the hackathon, the GitHub Copilot extension also works in Cursor since it's a VS Code fork.</p>
-  <div class="label">Optional: add GitHub Copilot in Cursor</div>
-  <p class="expected">In Cursor: Cmd/Ctrl+Shift+X → search "GitHub Copilot" → Install → sign in with the GitHub account linked to Microsoft (see Step 10).</p>
+  <p class="why">MCP (Model Context Protocol) servers expose tools to Copilot Chat. The exact list for the hackathon is being finalized by organizers — <strong>don't install anything here yet</strong>; check back closer to the event.</p>
+  <p class="expected"><em>Example (NOT required — for reference only):</em> <code>code --install-extension ms-azuretools.vscode-azure-mcp-server</code></p>
 </div>
 
 <!-- STEP 9: standalone Copilot CLI (PRIMARY) -->
@@ -454,7 +438,12 @@ code --install-extension ms-python.python</code></pre>
   <p class="expected">Launches Copilot, auto-runs the prompt, and prints the answer in the interactive UI — this is the most reliable validation. Type <code>/exit</code> when done. (The non-interactive flag <code>-p</code> sometimes prints a blank screen depending on terminal settings, so prefer <code>-i</code>.)</p>
 
   <div class="callout warn">
-    <strong>Entitlement error?</strong> If <code>copilot</code> says you don't have access, you signed in as the wrong GitHub account. Run <code>copilot</code> again and switch accounts at the device-code page, or visit <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> in a browser to confirm which account has the Microsoft-linked entitlement.
+    <strong>Entitlement error?</strong> If <code>copilot</code> says you don't have access, you likely signed in as the wrong GitHub account on the device-code page. To force a re-sign-in:
+    <ol>
+      <li>Inside an interactive session, run <code>/logout</code> then <code>/login</code> and authorize as the Microsoft-linked account.</li>
+      <li>If that doesn't help, exit and clear cached auth: delete <code>~/.copilot/</code> (Linux/macOS) or <code>%USERPROFILE%\.copilot\</code> (Windows), then re-run <code>copilot</code>.</li>
+      <li>Confirm the right account at <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> — see Step 10 for the multi-account caveat.</li>
+    </ol>
   </div>
 </div>
 
@@ -468,8 +457,9 @@ code --install-extension ms-python.python</code></pre>
 
   <div class="label">If <code>copilot</code> says "no entitlement" or won't sign you in</div>
   <ol>
-    <li>Open <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> in a browser. The page shows <strong>which GitHub account</strong> has Copilot active with <strong>Microsoft</strong> as the source — usually <code>&lt;alias&gt;_microsoft</code>, not your personal handle.</li>
-    <li>Re-run <code>copilot</code> and at the device-code page sign in as <em>that</em> account.</li>
+    <li><strong>Check the browser first.</strong> Open a fresh browser window and confirm the avatar in the top-right is your Microsoft-linked GitHub account (typically <code>&lt;alias&gt;_microsoft</code>) — not your personal handle. Switch accounts if needed; the <code>github.com/settings/copilot</code> page below always reflects whichever account the browser is signed in as.</li>
+    <li>Now open <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a>. The page should show Copilot active with <strong>Microsoft</strong> as the source.</li>
+    <li>Re-run <code>copilot</code> and at the device-code page sign in as that same account.</li>
     <li>Re-test: <code>copilot -i "explain git status"</code>.</li>
   </ol>
   <p class="expected">If the entitlement page itself shows no Copilot access, your GitHub account isn't linked to your Microsoft account yet — follow the page's "Link" prompt, then retry.</p>
@@ -477,7 +467,7 @@ code --install-extension ms-python.python</code></pre>
 
 <!-- STEP 11: Agency -->
 <h2 id="agency">Agency</h2>
-<p class="lead">Agency is the Microsoft-internal AI CLI from Azure Core Compute. Install via the official one-liner — Defender allow-lists this specific <code>aka.ms</code> URL.</p>
+<p class="lead">Agency is the Microsoft-internal AI CLI standard from Azure Core Compute. Install via the official one-liner — Defender allow-lists this specific <code>aka.ms</code> URL.</p>
 
 <div class="step" data-os="windows">
   <h3><span class="num">11.</span> Install Agency</h3>
@@ -506,18 +496,18 @@ code --install-extension ms-python.python</code></pre>
 <div class="step" data-os="macos">
   <h3><span class="num">11.</span> Install Agency</h3>
   <p class="why">Microsoft-internal AI CLI standard from Azure Core Compute.</p>
-  <p class="expected">Agency's official installer targets Windows. Check the <a href="https://aka.ms/agency-quickstart" target="_blank" rel="noopener">Agency quick-start</a> for the latest cross-platform options.</p>
+  <p class="expected">This guide currently covers Agency on <strong>Windows only</strong> — that's where the official installer is supported. macOS/Linux instructions: <em>PRs welcome</em> — see the <a href="https://aka.ms/agency-quickstart" target="_blank" rel="noopener">Agency quick-start</a> for the latest cross-platform status.</p>
 </div>
 
 <div class="step" data-os="linux">
   <h3><span class="num">11.</span> Install Agency</h3>
   <p class="why">Microsoft-internal AI CLI standard from Azure Core Compute.</p>
-  <p class="expected">Agency's official installer targets Windows. Check the <a href="https://aka.ms/agency-quickstart" target="_blank" rel="noopener">Agency quick-start</a> for the latest cross-platform options.</p>
+  <p class="expected">This guide currently covers Agency on <strong>Windows only</strong> — that's where the official installer is supported. macOS/Linux instructions: <em>PRs welcome</em> — see the <a href="https://aka.ms/agency-quickstart" target="_blank" rel="noopener">Agency quick-start</a> for the latest cross-platform status.</p>
 </div>
 
 <!-- Quick path -->
 <h2>Quick path — one paste-the-block command</h2>
-<p class="lead">For PMs who've read the above and just want all the package installs in one go. Run this <strong>after</strong> verifying your OS, then continue from Step 9 (Copilot CLI sign-in / Agency) manually.</p>
+<p class="lead">For PMs who've read the above and just want all the package installs in one go. <strong>Assumes the VS Code + Windows track</strong> — macOS/Linux blocks below have been smoke-tested less. Run this <strong>after</strong> verifying your OS, then continue with Steps 9 (Copilot CLI sign-in), 10 (link validation if needed), and 11 (Agency, Windows).</p>
 
 <details data-os="windows">
   <summary>Windows — paste into PowerShell or CMD</summary>
@@ -528,49 +518,49 @@ winget install --id GitHub.cli -e --accept-package-agreements --accept-source-ag
 winget install --id Microsoft.WindowsTerminal -e --accept-package-agreements --accept-source-agreements
 winget install --id Microsoft.PowerShell -e --accept-package-agreements --accept-source-agreements
 winget install --id Microsoft.VisualStudioCode -e --accept-package-agreements --accept-source-agreements</code></pre>
-  <p>Then restart your terminal so <code>code</code>, <code>gh</code>, and the rest are on PATH, and run:</p>
+  <p>Then <strong>restart your terminal</strong> so <code>code</code>, <code>node</code>, <code>npm</code>, <code>gh</code>, and the rest are on PATH, and run:</p>
   <pre><code>code --install-extension GitHub.copilot
 code --install-extension GitHub.copilot-chat
 code --install-extension ms-vscode.powershell
 code --install-extension ms-python.python
-npm install -g @github/copilot
-gh auth login</code></pre>
+npm install -g @github/copilot</code></pre>
+  <p>Now continue with Step 9 (run <code>copilot</code> and sign in) and Step 11 (Agency).</p>
 </details>
 
 <details data-os="macos">
-  <summary>macOS — paste into Terminal</summary>
+  <summary>macOS — paste into Terminal <em>(less tested — PRs welcome)</em></summary>
   <pre><code>brew install git node@20 python@3.12 gh
 brew install --cask visual-studio-code
 code --install-extension GitHub.copilot
 code --install-extension GitHub.copilot-chat
 code --install-extension ms-vscode.powershell
 code --install-extension ms-python.python
-npm install -g @github/copilot
-gh auth login</code></pre>
+npm install -g @github/copilot</code></pre>
+  <p>Then continue with Step 9 (run <code>copilot</code> and sign in).</p>
 </details>
 
 <details data-os="linux">
-  <summary>Linux (Debian/Ubuntu) — paste into a terminal</summary>
+  <summary>Linux (Debian/Ubuntu) — paste into a terminal <em>(less tested — PRs welcome)</em></summary>
   <pre><code>sudo apt update
 sudo apt install -y git python3 python3-pip python3-venv
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt install -y nodejs
-# gh: see Step 4 (the keyring + repo dance)
 sudo snap install code --classic
 code --install-extension GitHub.copilot
 code --install-extension GitHub.copilot-chat
 code --install-extension ms-vscode.powershell
 code --install-extension ms-python.python
-sudo npm install -g @github/copilot
-gh auth login</code></pre>
+sudo npm install -g @github/copilot</code></pre>
+  <p>(For <code>gh</code>, follow the keyring + repo steps in Step 4 — it's optional.) Then continue with Step 9 (run <code>copilot</code> and sign in).</p>
 </details>
 
 <h2>Troubleshooting</h2>
 <ul>
-  <li><strong><code>code</code> / <code>gh</code> not found after install</strong> — close and reopen your terminal so PATH refreshes.</li>
+  <li><strong><code>code</code> / <code>gh</code> / <code>node</code> not found after install</strong> — close and reopen your terminal so PATH refreshes. On macOS, also run <code>eval "$(/opt/homebrew/bin/brew shellenv)"</code> if needed.</li>
   <li><strong>winget says "no applicable installer"</strong> — your Windows is too old; update Windows or grab App Installer from the <a href="https://aka.ms/getwinget" target="_blank" rel="noopener">Microsoft Store</a>.</li>
-  <li><strong><code>copilot</code> says no entitlement</strong> — your GitHub account isn't linked to your Microsoft work account. Visit <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a>.</li>
-  <li><strong>Defender flags an installer</strong> — open Defender → Protection history → submit a false positive if it's one of the commands above. <code>winget</code> and <code>brew</code> installs themselves should never trigger Defender.</li>
+  <li><strong><code>winget</code> blocked by policy on a managed machine</strong> — your org may distribute these tools via Intune / Company Portal instead. Check Company Portal for VS Code, Git, Python, Node before troubleshooting <code>winget</code>.</li>
+  <li><strong><code>copilot</code> says no entitlement</strong> — your active GitHub account isn't the one linked to Microsoft. See Step 10.</li>
+  <li><strong>Defender flags an installer</strong> — stop, don't bypass it. Verify the command came from this guide (or a trusted source), and check with your hackathon organizers / IT before continuing. The <code>winget</code>, <code>brew</code>, <code>apt</code>, and <code>aka.ms/InstallTool.ps1</code> commands above are the only network-fetch operations this guide uses.</li>
 </ul>
 
 <footer>
@@ -585,7 +575,7 @@ gh auth login</code></pre>
   const editorRadios = document.querySelectorAll('input[name="editor"]');
   const trackLabel = document.getElementById('track-label');
   const osNames = { windows: 'Windows', macos: 'macOS', linux: 'Linux' };
-  const editorNames = { vscode: 'VS Code', cursor: 'Cursor', cli: 'CLI only (no IDE)' };
+  const editorNames = { vscode: 'VS Code', cli: 'CLI only (no IDE)' };
 
   function selected(name) {
     const r = document.querySelector('input[name="' + name + '"]:checked');
