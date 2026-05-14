@@ -430,7 +430,7 @@ code --install-extension ms-python.python</code></pre>
   <h3><span class="num">7.</span> Cursor + Copilot</h3>
   <p class="why">Cursor has its own AI; you can still use the standalone <code>copilot</code> CLI in your terminal alongside it (Step 9). For the hackathon, the GitHub Copilot extension also works in Cursor since it's a VS Code fork.</p>
   <div class="label">Optional: add GitHub Copilot in Cursor</div>
-  <p class="expected">In Cursor: Cmd/Ctrl+Shift+X → search "GitHub Copilot" → Install → sign in with the GitHub account linked to Microsoft (see Step 11).</p>
+  <p class="expected">In Cursor: Cmd/Ctrl+Shift+X → search "GitHub Copilot" → Install → sign in with the GitHub account linked to Microsoft (see Step 10).</p>
 </div>
 
 <!-- STEP 9: standalone Copilot CLI (PRIMARY) -->
@@ -447,7 +447,7 @@ code --install-extension ms-python.python</code></pre>
 
   <div class="label">First-run sign-in</div>
   <pre><code>copilot</code></pre>
-  <p class="expected">Launches an interactive session. On first run it prints a device code and a URL (<a href="https://github.com/login/device" target="_blank" rel="noopener">github.com/login/device</a>) — open it in a browser, <strong>sign in as the GitHub account that's linked to your Microsoft work account</strong> (usually <code>&lt;alias&gt;_microsoft</code>; see <a href="#link-validation">Step 11</a>), and authorize. Type <code>/exit</code> to leave the session.</p>
+  <p class="expected">Launches an interactive session. On first run it prints a device code and a URL (<a href="https://github.com/login/device" target="_blank" rel="noopener">github.com/login/device</a>) — open it in a browser, <strong>sign in as the GitHub account that's linked to your Microsoft work account</strong> (usually <code>&lt;alias&gt;_microsoft</code>; see <a href="#link-validation">Step 10</a>), and authorize. Type <code>/exit</code> to leave the session.</p>
 
   <div class="label">Validate — interactive mode auto-runs your prompt</div>
   <pre><code>copilot -i "explain git status"</code></pre>
@@ -458,83 +458,29 @@ code --install-extension ms-python.python</code></pre>
   </div>
 </div>
 
-<!-- STEP 10: gh copilot extension (OPTIONAL ALTERNATIVE) -->
-<div class="step">
-  <h3><span class="num">10.</span> <span class="badge">optional</span> <code>gh copilot</code> extension</h3>
-  <p class="why">Useful if you want <code>gh copilot suggest "..."</code> for shell-command suggestions inside the <code>gh</code> CLI. <strong>Skip this if Step 9 worked</strong> — the standalone CLI does everything this extension does and more.</p>
-  <div class="label">Sign in to <code>gh</code> first</div>
-  <pre><code>gh auth login</code></pre>
-  <p class="expected">Pick <strong>GitHub.com</strong> → HTTPS → browser auth. <strong>When prompted for scopes, include <code>copilot</code></strong> (or pick "all scopes"). Use the GitHub account that's linked to your Microsoft work account.</p>
-
-  <div class="label">Check (skip install if it prints a version)</div>
-  <pre><code>gh copilot --version</code></pre>
-
-  <div class="label">Install the extension if missing</div>
-  <pre><code>gh extension install github/gh-copilot</code></pre>
-
-  <div class="label">Verify the CLI is installed (offline checks — no API call)</div>
-  <pre><code>gh copilot --version
-gh copilot --help</code></pre>
-  <p class="expected">If both print output, the extension is correctly installed. <strong>Don't try <code>gh copilot explain</code> or <code>suggest</code> yet</strong> — those hit the Copilot API and will fail until your account is fully linked and your token has the <code>copilot</code> scope. Verify the API in <a href="#link-validation">Step 11</a>.</p>
-</div>
-
-<!-- STEP 11: GH<->MS link validation -->
+<!-- STEP 10: GH<->MS link validation (simplified) -->
 <h2 id="link-validation">Validate your GitHub ↔ Microsoft account link</h2>
-<p class="lead">Linking your GitHub account to your Microsoft work account unlocks <strong>unlimited Copilot tokens</strong> during the hackathon. If Step 9's <code>copilot -p "explain git status"</code> already works, you're linked correctly — you can skim this section. Otherwise, walk the signals below. <strong>This is also where you fix any "Unexpected problem with GitHub Copilot in the CLI" error from the <code>gh copilot</code> extension.</strong></p>
-
-<div class="callout warn">
-  <strong>If you skip this:</strong> you'll fall back to the free Copilot tier (limited completions/chat). Worth 60 seconds to confirm.
-</div>
+<p class="lead">Linking your GitHub account to your Microsoft work account unlocks <strong>unlimited Copilot tokens</strong> during the hackathon.</p>
 
 <div class="step">
-  <h3><span class="num">11.</span> Multi-account-aware validation (5 signals)</h3>
+  <h3><span class="num">10.</span> Confirm your link</h3>
+  <p class="why">If Step 9's <code>copilot -i "explain git status"</code> returned an answer, you're already linked — skip to Step 11 (Agency). The check below is only for fixing entitlement errors.</p>
 
-  <div class="callout danger">
-    <strong>⚠ Most common trap: multi-account confusion.</strong> Many Microsoft PMs have <strong>two GitHub accounts</strong> signed in — a personal one (e.g. <code>your-handle</code>) and a Microsoft-linked one (e.g. <code>youralias_microsoft</code>). The Copilot entitlement lives on the <strong>Microsoft-linked</strong> account only. The <code>gh</code> CLI uses the <em>active</em> account, so if the wrong one is active you'll get <code>Unexpected problem with GitHub Copilot in the CLI</code> even after refreshing scopes. (The standalone <code>copilot</code> CLI from Step 9 has its own auth and isn't affected by this trap.) Walk through the signals below in order — they'll catch this.
-  </div>
-
-  <div class="label">1. List ALL accounts and find the Microsoft-linked one</div>
-  <pre><code>gh auth status</code></pre>
-  <p class="expected">You may see multiple entries. The one you want is usually named like <code>&lt;alias&gt;_microsoft</code> or whatever account you used at <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a>. Note its <em>Token scopes</em> line.</p>
-
-  <div class="label">2. Make the Microsoft-linked account active</div>
-  <pre><code>gh auth switch -u &lt;your-ms-linked-username&gt;</code></pre>
-  <p class="expected">Replace <code>&lt;your-ms-linked-username&gt;</code> with the username from step 1. Verify with <code>gh api user --jq .login</code> — it should print that username.</p>
-
-  <div class="label">3. Confirm the active account has Copilot entitlement (no scope needed)</div>
-  <pre><code>gh api graphql -f query="{viewer{login copilotEndpoints{api}}}"</code></pre>
-  <p class="expected">Should print a JSON blob with a non-null <code>api</code> URL like <code>https://api.enterprise.githubcopilot.com</code>. If <code>copilotEndpoints</code> is <code>null</code>, this account doesn't have access — go back to step 2 and pick a different account, or visit <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> to link this account to Microsoft.</p>
-
-  <div class="label">4. Grant the <code>copilot</code> token scope to the active account</div>
-  <pre><code>gh auth refresh -h github.com -s copilot</code></pre>
-  <p class="expected">Re-opens the browser auth flow. <strong>The one-time code goes to <a href="https://github.com/login/device" target="_blank" rel="noopener">github.com/login/device</a></strong> — if no browser pops up, open that URL manually. <strong>Make sure you sign in there as the Microsoft-linked account</strong>, not your personal one. After authorizing, run <code>gh auth status</code> again — the active account's "Token scopes" line should now include <code>'copilot'</code>.</p>
-
-  <div class="label">5. Functional check — Copilot should respond now</div>
-  <pre><code>copilot -i "explain git status"</code></pre>
-  <p class="expected"><strong>Preferred:</strong> use the standalone CLI from Step 9 — <code>-i</code> launches an interactive session that auto-runs the prompt and reliably shows the answer. (<code>-p</code> non-interactive mode sometimes prints a blank screen.) Type <code>/exit</code> to leave. If you're testing the <code>gh copilot</code> extension instead, run <code>gh copilot explain "git status"</code>. Either should produce a plain-English explanation. (First gh-copilot run prompts you to opt into usage analytics — answer once.)</p>
-
-  <div class="callout warn">
-    <strong>Still getting <code>✗ Error: Unexpected problem with GitHub Copilot in the CLI</code> from <code>gh copilot</code>?</strong>
-    <ol>
-      <li><strong>Just use the standalone CLI</strong> from Step 9 (<code>copilot -p "..."</code>) — it bypasses gh-CLI auth entirely.</li>
-      <li><strong>Confirm the right account is active</strong>: <code>gh api user --jq .login</code> should print your MS-linked username, not your personal one.</li>
-      <li><strong>Confirm the scope landed</strong>: re-run <code>gh auth status</code> and check the Token scopes line for the active account — it must include <code>'copilot'</code>. If it doesn't, the device-flow authorization didn't complete; re-run signal #4 and watch the browser tab.</li>
-      <li><strong>Confirm entitlement</strong>: re-run signal #3 — <code>copilotEndpoints.api</code> must not be null.</li>
-      <li><strong>Visit the entitlement page</strong> at <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> in a browser signed in as the MS-linked account. You should see "GitHub Copilot is active" with <strong>Microsoft</strong> as the source.</li>
-      <li><strong>Corp proxy / firewall.</strong> Check that the Copilot API is reachable: <code>curl -I https://api.enterprise.githubcopilot.com</code> (or <code>api.githubcopilot.com</code> for non-enterprise). Any HTTP status — including 401 — means the network path is open.</li>
-      <li><strong>Still stuck.</strong> The <a href="https://docs.github.com/copilot/troubleshooting-github-copilot/troubleshooting-issues-with-github-copilot-in-the-cli" target="_blank" rel="noopener">official troubleshooting page</a> has more options.</li>
-    </ol>
-  </div>
-
-  <p class="expected"><em>Side note: <code>gh copilot status</code> is not a real subcommand — only <code>suggest</code>, <code>explain</code>, <code>alias</code>, and <code>config</code> exist. See <code>gh copilot --help</code>.</em></p>
+  <div class="label">If <code>copilot</code> says "no entitlement" or won't sign you in</div>
+  <ol>
+    <li>Open <a href="https://github.com/settings/copilot" target="_blank" rel="noopener">github.com/settings/copilot</a> in a browser. The page shows <strong>which GitHub account</strong> has Copilot active with <strong>Microsoft</strong> as the source — usually <code>&lt;alias&gt;_microsoft</code>, not your personal handle.</li>
+    <li>Re-run <code>copilot</code> and at the device-code page sign in as <em>that</em> account.</li>
+    <li>Re-test: <code>copilot -i "explain git status"</code>.</li>
+  </ol>
+  <p class="expected">If the entitlement page itself shows no Copilot access, your GitHub account isn't linked to your Microsoft account yet — follow the page's "Link" prompt, then retry.</p>
 </div>
 
-<!-- STEP 12: Agency -->
+<!-- STEP 11: Agency -->
 <h2 id="agency">Agency</h2>
 <p class="lead">Agency is the Microsoft-internal AI CLI from Azure Core Compute. Install via the official one-liner — Defender allow-lists this specific <code>aka.ms</code> URL.</p>
 
 <div class="step" data-os="windows">
-  <h3><span class="num">12.</span> Install Agency</h3>
+  <h3><span class="num">11.</span> Install Agency</h3>
   <p class="why">Microsoft-internal AI CLI standard from Azure Core Compute.</p>
   <div class="label">Check (skip install if it prints a version)</div>
   <pre><code>agency copilot --version</code></pre>
@@ -544,11 +490,11 @@ gh copilot --help</code></pre>
 </div>
 
 <div class="step" data-os="windows">
-  <h3><span class="num">13.</span> Validate Agency</h3>
+  <h3><span class="num">12.</span> Validate Agency</h3>
   <p class="why">Three quick signals that Agency is installed, on PATH, and signed in.</p>
   <div class="label">1. Binary on PATH</div>
   <pre><code>agency copilot --version</code></pre>
-  <p class="expected">Prints a version string. If "command not found", reopen your terminal; if still missing, re-run the install in Step 12.</p>
+  <p class="expected">Prints a version string. If "command not found", reopen your terminal; if still missing, re-run the install in Step 11.</p>
   <div class="label">2. Help works</div>
   <pre><code>agency copilot --help</code></pre>
   <p class="expected">Should list top-level commands.</p>
@@ -558,13 +504,13 @@ gh copilot --help</code></pre>
 </div>
 
 <div class="step" data-os="macos">
-  <h3><span class="num">12.</span> Install Agency</h3>
+  <h3><span class="num">11.</span> Install Agency</h3>
   <p class="why">Microsoft-internal AI CLI standard from Azure Core Compute.</p>
   <p class="expected">Agency's official installer targets Windows. Check the <a href="https://aka.ms/agency-quickstart" target="_blank" rel="noopener">Agency quick-start</a> for the latest cross-platform options.</p>
 </div>
 
 <div class="step" data-os="linux">
-  <h3><span class="num">12.</span> Install Agency</h3>
+  <h3><span class="num">11.</span> Install Agency</h3>
   <p class="why">Microsoft-internal AI CLI standard from Azure Core Compute.</p>
   <p class="expected">Agency's official installer targets Windows. Check the <a href="https://aka.ms/agency-quickstart" target="_blank" rel="noopener">Agency quick-start</a> for the latest cross-platform options.</p>
 </div>
@@ -588,8 +534,7 @@ code --install-extension GitHub.copilot-chat
 code --install-extension ms-vscode.powershell
 code --install-extension ms-python.python
 npm install -g @github/copilot
-gh auth login
-gh extension install github/gh-copilot</code></pre>
+gh auth login</code></pre>
 </details>
 
 <details data-os="macos">
@@ -601,8 +546,7 @@ code --install-extension GitHub.copilot-chat
 code --install-extension ms-vscode.powershell
 code --install-extension ms-python.python
 npm install -g @github/copilot
-gh auth login
-gh extension install github/gh-copilot</code></pre>
+gh auth login</code></pre>
 </details>
 
 <details data-os="linux">
@@ -618,8 +562,7 @@ code --install-extension GitHub.copilot-chat
 code --install-extension ms-vscode.powershell
 code --install-extension ms-python.python
 sudo npm install -g @github/copilot
-gh auth login
-gh extension install github/gh-copilot</code></pre>
+gh auth login</code></pre>
 </details>
 
 <h2>Troubleshooting</h2>
